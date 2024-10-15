@@ -1,7 +1,8 @@
-##Global Workforce Assignment Management System (RTS)
+**Global Workforce Assignment Management System (RTS)**
+
 This project is designed to manage employee assignments across global sites for Ramjack Technologies Solutions. The system allows administrators to manage employees, assign them to specific tasks and locations, and track assignment statuses across multiple global sites. The system uses the MERN stack (MongoDB, Express.js, React, Node.js) to deliver a robust solution.
 
-#Features
+*Features*
 Employee Assignment Management: Allows administrators to create, update, and manage employee assignments across various global locations.
 Role-Based Access Control (RBAC): Supports different user roles (e.g., admin, employee) with different levels of access and permissions.
 Task and Location Tracking: Enables the tracking of employee task progress and location-based assignments.
@@ -23,8 +24,8 @@ File Handling:
 
 Cloudinary: For managing and storing employee files like profile images and other documents.
 Project Structure
-bash
-Copy code
+
+
 ├── /src
 │   ├── /api         # API integration with Axios for backend communication
 │   ├── /components  # Reusable UI components (e.g., Form, Button, Notification)
@@ -38,7 +39,9 @@ Copy code
     ├── /routes      # API routes
     └── server.js    # Express.js server setup
 
-##Installation
+
+**Installation**
+
 Prerequisites
 Before you begin, ensure you have the following installed:
 
