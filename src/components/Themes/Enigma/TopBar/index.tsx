@@ -61,7 +61,7 @@ function Main(props: { layout?: "side-menu" }) {
               ])}
             >
               {" "}
-              RamJack{" "}
+              RTS{" "}
             </span>
           </Link>
           {/* END: Logo */}
