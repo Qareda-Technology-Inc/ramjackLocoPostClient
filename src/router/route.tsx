@@ -3,7 +3,6 @@ import DashboardOverview1 from "../pages/DashboardOverview1";
 import DashboardOverview2 from "../pages/DashboardOverview2";
 import DashboardOverview3 from "../pages/DashboardOverview3";
 import Employees from "../pages/Employees";
-import UsersLayout2 from "../pages/UsersLayout2";
 import UsersLayout3 from "../pages/UsersLayout3";
 import ProfileOverview2 from "../pages/ProfileOverview2";
 import ProfileOverview3 from "../pages/ProfileOverview3";
@@ -28,6 +27,7 @@ import Unauthorized from "@/pages/Unauthorized";
 import AddUser from "@/pages/AddUser";
 import Sites from "@/pages/Sites";
 import AddSite from "@/pages/AddSite";
+import Assignment from "@/pages/Assignment";
 
 function Router() {
   const routes = [
@@ -81,35 +81,35 @@ function Router() {
         },
         {
           path: "view-assign",
-          element: <PrivateRoute element={<UsersLayout2 />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
         },
         {
           path: "assign-employee",
-          element: <PrivateRoute element={<UsersLayout2 />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
         },
         {
           path: "assignment-crud",
-          element: <PrivateRoute element={<UsersLayout2 />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
         },
         {
           path: "generate-report",
-          element: <PrivateRoute element={<UsersLayout2 />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
         },
         {
           path: "view-report",
-          element: <PrivateRoute element={<UsersLayout2 />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
         },
         {
           path: "notification",
-          element: <PrivateRoute element={<UsersLayout2 />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
         },
         {
           path: "systems-settings",
-          element: <PrivateRoute element={<UsersLayout2 />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
         },
         {
           path: "user-permissions",
-          element: <PrivateRoute element={<UsersLayout2 />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
         },
       ],
     },

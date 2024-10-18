@@ -98,7 +98,7 @@ function Main() {
                   />
                 </div>
                 <div className="mt-3 text-center lg:ml-2 lg:mr-auto lg:text-left lg:mt-0">
-                  <a href="#" className="text-lg font-bold">
+                  <a href="#" className="text-lg font-bold" onClick={() => viewEmployee(user)}>
                     {user.firstName} {user.lastName}
                   </a>
                   <div className="text-slate-500 text-xs mt-0.5">

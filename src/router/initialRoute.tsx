@@ -21,7 +21,7 @@ import Calendar from "../pages/Calendar";
 import CrudDataList from "../pages/CrudDataList";
 import CrudForm from "../pages/CrudForm";
 import UsersLayout1 from "../pages/Employees";
-import UsersLayout2 from "../pages/UsersLayout2";
+import UsersLayout2 from "../pages/Assignments";
 import UsersLayout3 from "../pages/UsersLayout3";
 import ProfileOverview1 from "../pages/ViewEmployee";
 import ProfileOverview2 from "../pages/ProfileOverview2";

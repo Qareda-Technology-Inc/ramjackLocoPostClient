@@ -4,7 +4,6 @@ import {
   } from "@/components/Base/Form";
   import Button from "@/components/Base/Button";
   import Notification from "@/components/Base/Notification";
-  import Lucide from "@/components/Base/Lucide";
   import { useForm } from "react-hook-form";
   import Toastify from "toastify-js";
   import clsx from "clsx";
@@ -18,6 +17,7 @@ import { Navigate, useNavigate } from "react-router-dom";
     const navigate = useNavigate();
     const [imageFile, setImageFile] = useState(null);
     const [imageUrl, setImageUrl] = useState("");
+    const [image, setImage] = useState("");
     
     const schema = yup
     .object({
@@ -25,8 +25,8 @@ import { Navigate, useNavigate } from "react-router-dom";
     description: yup.string(),
     location: yup.string().required(),
     country: yup.string().required(),
-    image: yup.string().url(), // Optional, must be a valid URL if provided
-    active: yup.boolean(), // Optional, default can be true
+    image: yup.string().url(),
+    active: yup.boolean(),
   })
   .required();
 
@@ -42,29 +42,22 @@ import { Navigate, useNavigate } from "react-router-dom";
       resolver: yupResolver(schema),
     });
 
+    const previewFiles = (file: any) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file)
+
+      reader.onloadend = () => {
+        setImage(reader.result as string)
+      }
+      console.log("Result: ", image);
+    }
+
     const onFileChange = (event: { target: { files: React.SetStateAction<null>[]; }; }) => {
-        setImageFile(event.target.files[0]);
+      const file = event.target.files[0]  
+      setImageFile(file);
+      previewFiles(file);
       };
-    
-      const uploadImage = async () => {
-        if (!imageFile) return "";
-        const formData = new FormData();
-        formData.append("file", imageFile);
-        formData.append("upload_preset", "your_upload_preset"); // Replace with your Cloudinary upload preset
-    
-        try {
-          const response = await api.post("your_cloudinary_upload_endpoint", formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-          return response.data.secure_url; // Adjust according to your response structure
-        } catch (error) {
-          console.error("Image upload error:", error);
-          return "";
-        }
-      };
-  
+
     const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const result = await trigger();
@@ -89,13 +82,14 @@ import { Navigate, useNavigate } from "react-router-dom";
               description: getValues("description"),
               location: getValues("location"),
               country: getValues("country"),
-              image: imageUrl,
+              image: image,
               active: getValues("active") || true,
           };
   
           try {
-              const response = await api.post("sites/add", formData); // Adjust the endpoint as necessary
+              const response = await api.post("sites/add", formData);
               console.log("Site response:", response.data);
+              console.log("Image:", image);
               
               const successEl = document
                   .querySelectorAll("#success-notification-content")[0]
@@ -120,7 +114,7 @@ import { Navigate, useNavigate } from "react-router-dom";
               setImageFile(null); // Reset file input
               setImageUrl(""); // Clear image URL
               navigate('/sites')
-          } catch (error) {
+          } catch (error: any) {
               console.error("Registration error:", error);
               const failedEl = document
                   .querySelectorAll("#failed-notification-content")[0]
@@ -280,6 +274,7 @@ import { Navigate, useNavigate } from "react-router-dom";
                 Register
               </Button>
             </form>
+            <img src={image} alt="" />
           </div>
         </div>
       </div>
