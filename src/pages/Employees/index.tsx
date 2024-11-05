@@ -83,9 +83,9 @@ function Main() {
             </div>
           </div>
         </div>
-
-        {/* BEGIN: Users Layout */}
-        {filteredUsers.map((user, id) => (
+        <></>
+        {filteredUsers ? (<div>
+          {filteredUsers.map((user, id) => (
           <div key={id} className="col-span-12 intro-y md:col-span-6">
             <div className="box">
               <div className="flex flex-col items-center p-5 border-b lg:flex-row border-slate-200/60 dark:border-darkmode-400">
@@ -166,6 +166,9 @@ function Main() {
             </div>
           </div>
         ))}
+        </div>): " No data"} 
+        {/* BEGIN: Users Layout */}
+        
         {/* END: Users Layout */}
       </div>
     </>
