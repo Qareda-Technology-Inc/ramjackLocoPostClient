@@ -25,7 +25,7 @@ export interface LoginResponse {
     email: string;
     token: string;
     role: string;
-    avatar: string;
+    image: string;
     contactInfo: contactInfo;
     password: string,
     position: string,

@@ -3,9 +3,15 @@ import api from '@/api/axios';
 import { useParams } from 'react-router-dom';
 import { FormInput, FormLabel } from '@/components/Base/Form';
 import Toastify from 'toastify-js';
+import { useNavigate } from 'react-router-dom';
+import Lucide from '@/components/Base/Lucide';
 
 const Main = () => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [imageFile, setImageFile] = useState(null)
+  const [image, setImage] = useState('');
+
   const [employee, setEmployee] = useState({
     firstName: '',
     lastName: '',
@@ -14,9 +20,10 @@ const Main = () => {
       phone: '',
     },
     identityNo: '',
-    role: 'FIELD-TECHNICIAN',
-    status: 'ACTIVE',
+    role: '',
+    status: '',
     position: '',
+    image: '',
   });
 
   useEffect(() => {
@@ -33,6 +40,21 @@ const Main = () => {
     fetchEmployeeData();
   }, [id]);
 
+  const previewFiles = (file: any) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file)
+
+    reader.onloadend = () => {
+      setImage(reader.result as string)
+    }
+  }
+
+  const onFileChange = (event: { target: { files: React.SetStateAction<null>[]; }; }) => {
+    const file = event.target.files[0]  
+    setImageFile(file);
+    previewFiles(file);
+    };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
@@ -48,9 +70,22 @@ const Main = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Prepare employee data to send
+  const updatedEmployee = {
+    ...employee,
+    contactInfo: {
+      ...employee.contactInfo,
+      email: employee.contactInfo.email,
+      phone: employee.contactInfo.phone,
+    },
+    image: imageFile ? image : employee.image,  // Use the new image if it exists, otherwise send the old one
+  };
+
     try {
-      const response = await api.put(`users/${id}/update`, employee);
+      const response = await api.put(`users/${id}/update`, updatedEmployee);
       showToast(response.data.message || "Profile updated successfully!", "success");
+      navigate('/employees');
     } catch (error) {
       console.error('Error updating employee profile:', error);
       showToast("Error updating employee profile.", "error");
@@ -189,6 +224,22 @@ const Main = () => {
                 />
               </div>
             </div>
+            {/* Image Upload */}
+            <div className="input-form intro-y">
+                  <FormLabel htmlFor="image" className="flex flex-col">
+                  Upload an image (Optional)
+                  </FormLabel>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={onFileChange}
+                    className="border rounded-md px-4 py-2"
+                  />
+                  <img src={image || employee.image} alt="" className="rounded-full w-20 h-20"/>
+                  <div className="absolute p-2 mb-1 mr-1 rounded-full bg-primary top-28 left-6">
+                  <Lucide icon="Camera" className="w-4 h-4 text-white" />
+                </div>                  
+                </div>
             <div className='flex justify-center'>
               <button
                 type="submit"

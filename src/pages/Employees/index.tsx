@@ -83,18 +83,17 @@ function Main() {
             </div>
           </div>
         </div>
-        <></>
-        {filteredUsers ? (<div>
-          {filteredUsers.map((user, id) => (
-          <div key={id} className="col-span-12 intro-y md:col-span-6">
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 col-span-12">
+        {filteredUsers ? (
+          filteredUsers.map((user, id) => (
+          <div key={id} className="col-span-1 intro-y">
             <div className="box">
               <div className="flex flex-col items-center p-5 border-b lg:flex-row border-slate-200/60 dark:border-darkmode-400">
                 <div className="w-24 h-24 lg:w-12 lg:h-12 image-fit lg:mr-1">
                   <img
                     alt="Qaretech Innovative"
                     className="rounded-full"
-                    src={user.avatar ? user.avatar : imageUrl}
-                    onError={(e) => (e.currentTarget.src = imageUrl)}
+                    src={user.image ? user.image : imageUrl}
                   />
                 </div>
                 <div className="mt-3 text-center lg:ml-2 lg:mr-auto lg:text-left lg:mt-0">
@@ -165,9 +164,10 @@ function Main() {
               </div>
             </div>
           </div>
-        ))}
-        </div>): " No data"} 
+        ))
+        ): " No data"} 
         {/* BEGIN: Users Layout */}
+        </div>
         
         {/* END: Users Layout */}
       </div>

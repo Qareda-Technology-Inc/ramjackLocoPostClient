@@ -12,6 +12,7 @@ import {
   import React, { useState } from "react";
   import api from "@/api/axios";
 import { Navigate, useNavigate } from "react-router-dom";
+import Lucide from "@/components/Base/Lucide";
   
   function Main() {
     const navigate = useNavigate();
@@ -87,10 +88,7 @@ import { Navigate, useNavigate } from "react-router-dom";
           };
   
           try {
-              const response = await api.post("sites/add", formData);
-              console.log("Site response:", response.data);
-              console.log("Image:", image);
-              
+              const response = await api.post("sites/add", formData);              
               const successEl = document
                   .querySelectorAll("#success-notification-content")[0]
                   .cloneNode(true) as HTMLElement;
@@ -241,10 +239,9 @@ import { Navigate, useNavigate } from "react-router-dom";
                 </div>
 
                 {/* Image Upload */}
-                <div className="input-form">
+                <div className="input-form intro-y">
                   <FormLabel htmlFor="image" className="flex flex-col">
-                    Image
-                    <span className="mt-1 text-xs text-slate-500">Upload an image (Optional)</span>
+                  Upload an image (Optional)
                   </FormLabel>
                   <input
                     type="file"
@@ -252,6 +249,10 @@ import { Navigate, useNavigate } from "react-router-dom";
                     onChange={onFileChange}
                     className="border rounded-md px-4 py-2"
                   />
+                  <img src={image} alt="" className="rounded-full w-20 h-20"/>
+                  <div className="absolute p-2 mb-1 mr-1 rounded-full bg-primary top-28 left-6">
+                  <Lucide icon="Camera" className="w-4 h-4 text-white" />
+                </div>                  
                 </div>
 
                 {/* Active */}
@@ -274,7 +275,6 @@ import { Navigate, useNavigate } from "react-router-dom";
                 Register
               </Button>
             </form>
-            <img src={image} alt="" />
           </div>
         </div>
       </div>

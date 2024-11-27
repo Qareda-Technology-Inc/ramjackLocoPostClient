@@ -8,12 +8,17 @@ import Toastify from "toastify-js";
 import clsx from "clsx";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import api from "@/api/axios";
 import { isAxiosError } from "axios";
+import Lucide from "@/components/Base/Lucide";
+import { useNavigate } from 'react-router-dom';
 
 function Main() {
+  const navigate = useNavigate();
+  const [imageFile, setImageFile] = useState(null);
+  const [image, setImage] = useState('');
   const schema = yup
     .object({
       firstName: yup.string().required().min(2),
@@ -26,6 +31,7 @@ function Main() {
         phone: yup.string().required().min(10),
         email: yup.string().required().email(),
       }),
+      image: yup.string(),
     })
     .required();
 
@@ -47,6 +53,22 @@ function Main() {
     { value: "FIELD-TECHNICIAN", label: "Field Technician" },
     { value: "ADMIN", label: "Admin" },
   ];
+
+  const previewFiles = (file: any) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file)
+
+    reader.onloadend = () => {
+      setImage(reader.result as string)
+    }
+    console.log("Image", image)
+  }
+
+  const onFileChange = (event: { target: { files: React.SetStateAction<null>[]; }; }) => {
+    const file = event.target.files[0]  
+    setImageFile(file);
+    previewFiles(file);
+    };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -79,12 +101,12 @@ function Main() {
           phone: getValues("contactInfo.phone"),
           email: getValues("contactInfo.email"),
         },
+        image: image,
       };
 
       try {
         const response = await api.post("users/add", formData);
-        console.log("Registration response:", response.data);
-
+        
         const successElements = document.querySelectorAll("#success-notification-content");
         if (successElements.length > 0) {
           const successEl = successElements[0].cloneNode(true) as HTMLElement;
@@ -107,6 +129,7 @@ function Main() {
           }).showToast();
 
           reset(); // Clear form inputs
+          navigate('/employees')
         }
       } catch (error: unknown) {
         console.error("Registration error:", error);
@@ -324,12 +347,29 @@ function Main() {
                     </div>
                   )}
                 </div>
+
+                <div className="input-form intro-y">
+                  <FormLabel htmlFor="image" className="flex flex-col">
+                    Employee Profile Pic
+                  </FormLabel>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={onFileChange}
+                    className="border rounded-md px-4 py-2"
+                  />
+                  <img src={image} alt="" className="rounded-full w-20 h-20"/>
+                  <div className="absolute p-2 mb-1 mr-1 rounded-full bg-primary top-28 left-6">
+                  <Lucide icon="Camera" className="w-4 h-4 text-white" />
+                </div>                  
+                </div>
               </div>
 
-              <Button className="mt-5" type="submit">
+              <Button className="mt-10" type="submit">
                 Register
               </Button>
             </form>
+            
           </div>
         </div>
       </div>

@@ -30,7 +30,7 @@ function Main() {
                 <img
                   alt="Qaretech Innovative"
                   className="rounded-full"
-                  src={employee?.employee.avatar ? employee?.employee?.avatar : imageUrl}
+                  src={employee?.employee.image ? employee?.employee?.image : imageUrl}
                 />
                 <div className="absolute bottom-0 right-0 flex items-center justify-center p-2 mb-1 mr-1 rounded-full bg-primary">
                   <Lucide icon="Camera" className="w-4 h-4 text-white" />
