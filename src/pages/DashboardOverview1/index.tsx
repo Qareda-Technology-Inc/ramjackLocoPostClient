@@ -1,6 +1,6 @@
 import _ from "lodash";
 import clsx from "clsx";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import fakerData from "@/utils/faker";
 import Button from "@/components/Base/Button";
 import { FormInput, FormSelect } from "@/components/Base/Form";
@@ -13,8 +13,19 @@ import ReportLineChart from "@/components/ReportLineChart";
 import ReportPieChart from "@/components/ReportPieChart";
 import LeafletMap from "@/components/LeafletMap";
 import { Menu } from "@/components/Base/Headless";
+import {User} from "@/types/auth";
+import {Site} from "@/types/site";
+import api from "@/api/axios";
+import { Assignment } from "@/types/assignment";
 
 function Main() {
+  const token = localStorage.getItem("token");
+
+  const [employees, setEmployees] = useState<User[]>([]);
+  const [sites, setSites] = useState<Site[]>();
+  const [assignments, setAssignments] = useState<Assignment[]>();
+  const [approaching, setApproaching] = useState<User[]>([]);
+
   const [salesReportFilter, setSalesReportFilter] = useState<string>();
   const importantNotesRef = useRef<TinySliderElement>();
   const prevImportantNotes = () => {
@@ -23,6 +34,44 @@ function Main() {
   const nextImportantNotes = () => {
     importantNotesRef.current?.tns.goTo("next");
   };
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const employeeResponse = await api.get("/users/list", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        setEmployees(employeeResponse.data);
+
+        const siteResponse = await api.get("/sites/list", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        setSites(siteResponse.data);
+
+        const assignmentResponse = await api.get("/assignments/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        setAssignments(assignmentResponse.data);
+
+        const approachingResponse = await api.get("/users/approaching-date", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          // params:{days:50}
+        });
+        setApproaching(approachingResponse.data);
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    fetchEmployees();
+  }, [token])
 
   return (
     <div className="grid grid-cols-12 gap-6">
@@ -57,7 +106,7 @@ function Main() {
                       </div>
                     </div>
                     <div className="mt-6 text-3xl font-medium leading-8">
-                      710
+                      {employees.length}
                     </div>
                     <div className="mt-1 text-base text-slate-500">
                       TOTAL EMPLOYEES
@@ -82,7 +131,7 @@ function Main() {
                       </div>
                     </div>
                     <div className="mt-6 text-3xl font-medium leading-8">
-                      81
+                      {sites?.length}
                     </div>
                     <div className="mt-1 text-base text-slate-500">
                       TOTAL SITES
@@ -107,7 +156,7 @@ function Main() {
                       </div>
                     </div>
                     <div className="mt-6 text-3xl font-medium leading-8">
-                      249
+                      {assignments?.length}
                     </div>
                     <div className="mt-1 text-base text-slate-500">
                       TOTAL ASSIGNMENT
@@ -291,7 +340,11 @@ function Main() {
                 </h2>
               </div>
               <div className="mt-5">
-                {_.take(fakerData, 5).map((faker, fakerKey) => (
+                {approaching.length === 0 ? (
+                  <div>No approaching Date</div>
+                ): (
+                  <>
+                  {_.take(approaching, 5).map((faker, fakerKey) => (
                   <div key={fakerKey} className="intro-x">
                     <div className="flex items-center px-5 py-3 mb-3 box zoom-in">
                       <div className="flex-none w-10 h-10 overflow-hidden rounded-full image-fit">
@@ -301,22 +354,24 @@ function Main() {
                         /> */}
                       </div>
                       <div className="ml-4 mr-auto">
-                        <div className="font-medium">{faker.users[0].name}</div>
+                        <div className="font-medium">{faker.firstName}</div>
                         <div className="text-slate-500 text-xs mt-0.5">
-                          {faker.dates[0]}
+                          {/* {faker.assignments?.endDat} */}
                         </div>
                       </div>
                       <div
                         className={clsx({
-                          "text-success": faker.trueFalse[0],
-                          "text-danger": !faker.trueFalse[0],
+                          "text-success": faker.status === "ACTIVE",
+                          "text-danger": faker.status === "INACTIVE",
                         })}
                       >
-                        {/* {faker.trueFalse[0] ? "+" : "-"}${faker.totals[0]} */}
+                        {/* {faker.status} */}
                       </div>
                     </div>
                   </div>
-                ))}
+                ))}</>
+                )}
+                
                 <a
                   href=""
                   className="block w-full py-3 text-center border border-dotted rounded-md intro-x border-slate-400 dark:border-darkmode-300 text-slate-500"

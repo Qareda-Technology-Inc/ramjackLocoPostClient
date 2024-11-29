@@ -40,14 +40,6 @@ function Router() {
           element: <PrivateRoute element={<DashboardOverview1 />} allowedRoles={["ADMIN", "PRESIDENT"]} />,
         },
         {
-          path: "dashboard-overview-2",
-          element: <PrivateRoute element={<DashboardOverview2 />} allowedRoles={["ADMIN"]} />,
-        },
-        {
-          path: "dashboard-overview-3",
-          element: <PrivateRoute element={<DashboardOverview3 />} allowedRoles={["ADMIN"]} />,
-        },
-        {
           path: "employees",
           element: <PrivateRoute element={<Employees />} allowedRoles={["ADMIN", "PRESIDENT"]} />,
         },
