@@ -18,6 +18,8 @@ import ErrorPage from "../pages/ErrorPage";
 import ProfileOverview1 from "../pages/ViewEmployee";
 import EditEmployee from "../pages/EditEmployee";
 
+import ProductList from "../pages/Sites";
+
 import RegularForm from "../pages/RegularForm";
 
 import Layout from "../themes";
@@ -28,6 +30,8 @@ import AddUser from "@/pages/AddUser";
 import Sites from "@/pages/Sites";
 import AddSite from "@/pages/AddSite";
 import Assignment from "@/pages/Assignment";
+import Assignments from "@/pages/Assignments";
+import EditAssignment from "@/pages/EditAssignment";
 
 function Router() {
   const routes = [
@@ -67,21 +71,22 @@ function Router() {
           path: "view-site/id",
           element: <PrivateRoute element={<AddSite />} allowedRoles={["ADMIN"]} />,
         },
+
         {
           path: "edit-site/id",
           element: <PrivateRoute element={<AddSite />} allowedRoles={["ADMIN"]} />,
         },
         {
           path: "view-assign",
-          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignments />} allowedRoles={["ADMIN"]} />,
         },
         {
           path: "assign-employee",
           element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
         },
         {
-          path: "assignment-crud",
-          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
+          path: "edit-assignment/:id",
+          element: <PrivateRoute element={<EditAssignment />} allowedRoles={["ADMIN"]} />,
         },
         {
           path: "generate-report",

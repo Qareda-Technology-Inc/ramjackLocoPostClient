@@ -7,6 +7,24 @@ import { useNavigate } from "react-router-dom";
 import { Assignment } from "@/types/assignment";
 import api from "@/api/axios";
 
+// Function to calculate remaining time
+const calculateRemainingTime = (endDate: string) => {
+  const now = new Date().getTime();
+  const targetDate = new Date(endDate).getTime();
+  const remainingTime = targetDate - now;
+
+  if (remainingTime <= 0) {
+    return "Event has passed";
+  }
+
+  const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+
+  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+};
+
 function Main() {
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -33,9 +51,9 @@ function Main() {
       try {
         const { data } = await api.get("/assignments/", {
           headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
+            Authorization: `Bearer ${token}`
+          }
+        });
         setAssignments(data);
       } catch (error) {
         console.error(error);
@@ -54,7 +72,7 @@ function Main() {
   };
 
   const editAssignment = (assignmentId: string) => {
-    navigate(`/edit-employee/${assignmentId}`);
+    navigate(`/edit-assignment/${assignmentId}`);
   };
 
   return (
@@ -98,20 +116,26 @@ function Main() {
                 </div>
                 <div className="mt-3 text-center lg:ml-2 lg:mr-auto lg:text-left lg:mt-0">
                   <a href="#" className="font-medium" onClick={() => viewAssignment(assignment)}>
-                    {assignment?.site?.name} &gt; {assignment?.site?.location} &gt; {assignment?.site?.country}
+                    {assignment?.site?.name} &gt; {assignment?.site?.location} &gt; {assignment?.site?.country} 
                   </a>
                   <div className="text-slate-500 text-xs mt-0.5">
-                  {assignment.employee.firstName} {assignment.employee.lastName} {' '} &gt;
-                  {new Date(assignment.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} {' - '}
-                  {new Date(assignment.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    {assignment.employee.firstName} {assignment.employee.lastName} {' '} &gt;
+                    {new Date(assignment.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} {' - '}
+                    {new Date(assignment.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </div>
+                  <div className="text-slate-500 text-xs mt-2">
+                    <strong>Remaining Time: </strong>{calculateRemainingTime(assignment?.endDate)}
                   </div>
                 </div>
                 <div className="flex mt-4 lg:mt-0">
                   <Button variant="primary" className="px-2 py-1 mr-2" onClick={() => viewAssignment(assignment)}>
                     View
                   </Button>
-                  <Button variant="outline-secondary" className="px-2 py-1" onClick={() => editAssignment(assignment._id)}>
+                  <Button variant="outline-secondary" className="px-2 py-1 mr-2" onClick={() => editAssignment(assignment._id)}>
                     Edit
+                  </Button>
+                  <Button variant="danger" className="px-2 py-1" onClick={() => editAssignment(assignment._id)}>
+                    Delete
                   </Button>
                 </div>
               </div>
