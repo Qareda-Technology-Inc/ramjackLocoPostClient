@@ -8,11 +8,13 @@ import api from "@/api/axios";
 import { User } from "@/types/auth";
 import imageUrl from '@/assets/images/logoSingle.png';
 import { useNavigate } from "react-router-dom";
+import { LoadingTag } from "@/components/Loading";
 
 function Main() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState<boolean>(false)
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -30,14 +32,17 @@ function Main() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        setLoading(true);
         const { data } = await api.get("/users/list", {
           headers: {
               Authorization: `Bearer ${token}`
             }
           });
         setUsers(data);
+        setLoading(false)
       } catch (error) {
         console.error(error);
+        setLoading(false)
       }
     };
 
@@ -57,6 +62,10 @@ function Main() {
   };
 
   return (
+    <> {
+      loading ? (
+        <LoadingTag />
+      ) : (
     <>
       <h2 className="mt-10 text-lg font-medium intro-y">Employee List</h2>
       <div className="grid grid-cols-12 gap-6 mt-5">
@@ -171,6 +180,8 @@ function Main() {
         
         {/* END: Users Layout */}
       </div>
+    </>
+    )}
     </>
   );
 }

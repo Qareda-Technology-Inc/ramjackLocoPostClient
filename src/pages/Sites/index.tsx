@@ -10,6 +10,7 @@ import api from "@/api/axios";
 import { Site } from "@/types/site";
 import imageUrl from '@/assets/images/logoSingle.png';
 import { useNavigate } from "react-router-dom";
+import { LoadingTag } from "@/components/Loading";
 
 
 function Main() {
@@ -17,6 +18,7 @@ function Main() {
   const [sites, setSites] = useState<Site[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteConfirmationModal, setDeleteConfirmationModal] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const deleteButtonRef = useRef(null);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,16 +37,19 @@ function Main() {
   useEffect(() => {
     const fetchSites = async () => {
       try {
+        setLoading(true)
         const { data } = await api.get("/sites/list", {
           headers: {
               Authorization: `Bearer ${token}`
             }
           });
-          console.log("Sites: ", data);
+          setLoading(false)
         setSites(data);
       } catch (error) {
         console.error(error);
+        setLoading(false)
       }
+      setLoading(false)
     };
 
     fetchSites();
@@ -63,6 +68,8 @@ function Main() {
   };
 
   return (
+    <> 
+    {loading ? (<LoadingTag />) : (
     <>
       <h2 className="mt-10 text-lg font-medium intro-y">Product List</h2>
       <div className="grid grid-cols-12 gap-6 mt-5">
@@ -203,6 +210,9 @@ function Main() {
         </div>
         {/* END: Data List */}
       </div>
+      </>
+        
+    )}
 
 
       {/* BEGIN: Delete Confirmation Modal */}

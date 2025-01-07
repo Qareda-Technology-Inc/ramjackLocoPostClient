@@ -14,11 +14,13 @@ import api from "@/api/axios";
 import { isAxiosError } from "axios";
 import Lucide from "@/components/Base/Lucide";
 import { useNavigate } from 'react-router-dom';
+import { LoadingTag } from "@/components/Loading";
 
 function Main() {
   const navigate = useNavigate();
   const [imageFile, setImageFile] = useState(null);
   const [image, setImage] = useState('');
+  const [loading, setLoading] = useState<boolean>(false);
   const schema = yup
     .object({
       firstName: yup.string().required().min(2),
@@ -105,6 +107,7 @@ function Main() {
       };
 
       try {
+        setLoading(true);
         const response = await api.post("users/add", formData);
         
         const successElements = document.querySelectorAll("#success-notification-content");
@@ -158,12 +161,15 @@ function Main() {
             stopOnFocus: true,
           }).showToast();
         }
+        setLoading(false)
       }
     }
   };
 
   return (
-    <>
+    <> {loading ? (
+      <LoadingTag />
+    ) : (
       <div className="grid grid-cols-1 gap-6 mt-5">
         <div className="col-span-12 intro-y lg:col-span-6">
           <div className="p-5">
@@ -373,6 +379,7 @@ function Main() {
           </div>
         </div>
       </div>
+    ) }
 
       <Notification id="success-notification-content" className="hidden">
         <div className="font-medium">Registration success!</div>

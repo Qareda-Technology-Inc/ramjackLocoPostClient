@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import Toastify from "toastify-js";
 import { AxiosError } from 'axios';
 import Notification from "@/components/Base/Notification";
+import { LoadingTag } from '@/components/Loading';
 
 const Main: React.FC = () => {
     const navigate = useNavigate();
@@ -74,8 +75,8 @@ const Main: React.FC = () => {
             endDate,
         };
 
-        setLoading(true);
         try {
+            setLoading(true);
             const response = await api.post('/assignments/assignTo', assignmentData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -106,6 +107,7 @@ const Main: React.FC = () => {
                         background: "green",
                     }
                 }).showToast();
+                setLoading(false)
             }
 
             navigate('/view-assign');
@@ -143,7 +145,9 @@ const Main: React.FC = () => {
     };
 
     return (
-        <>
+        <> {loading ? (
+            <LoadingTag />
+        ): (
         <div className="grid grid-cols-1 gap-6 mt-5">
             <div className="col-span-12 intro-y lg:col-span-6">
                 <div className="p-5">
@@ -236,6 +240,7 @@ const Main: React.FC = () => {
                 </div>
             </div>
         </div>
+        )}
         <Notification id="success-notification-content" className="hidden">
             <div className="font-medium">Registration success!</div>
         </Notification>

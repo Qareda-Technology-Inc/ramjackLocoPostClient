@@ -106,7 +106,7 @@ const Main: React.FC = () => {
             let response;
             if (id) {
                 // Update existing assignment if id is available
-                response = await api.put(`/assignments/${id}`, assignmentData, {
+                response = await api.put(`/assignments/update/${id}`, assignmentData, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
