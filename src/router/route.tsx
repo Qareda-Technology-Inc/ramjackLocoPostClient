@@ -41,7 +41,7 @@ function Router() {
       children: [
         {
           path: "/",
-          element: <PrivateRoute element={<DashboardOverview1 />} allowedRoles={["ADMIN", "PRESIDENT"]} />,
+          element: <PrivateRoute element={<DashboardOverview1 />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN"]} />,
         },
         {
           path: "employees",
@@ -61,7 +61,7 @@ function Router() {
         },
         {
           path: "sites",
-          element: <PrivateRoute element={<Sites />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Sites />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN"]} />,
         },
         {
           path: "add-site",

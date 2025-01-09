@@ -1,5 +1,6 @@
-import { type Menu } from "@/stores/menuSlice";
-
+import { useSelector } from 'react-redux';
+import { RootState } from "@/stores/store"; // Import your RootState from your Redux store
+import { Menu } from "@/stores/menuSlice"; // Assuming Menu type is imported from the correct file
 
 const menu: Array<Menu | "divider"> = [
   {
@@ -53,11 +54,6 @@ const menu: Array<Menu | "divider"> = [
         pathname: "/assign-employee",
         title: "Assign Employee to Site",
       },
-      {
-        icon: "Activity",
-        pathname: "/assignment-crud",
-        title: "Update/Delete Assignment",
-      },
     ],
   },
   {
@@ -81,7 +77,6 @@ const menu: Array<Menu | "divider"> = [
     pathname: "/notification",
     title: "Notifications",
   },
-  
   "divider",
   {
     icon: "Settings",
@@ -107,4 +102,24 @@ const menu: Array<Menu | "divider"> = [
   },
 ];
 
-export default menu;
+// Fetch the logged-in user's role from the Redux store
+// const userRole = useSelector((state: RootState) => state.user.user?.role);
+const userRole = "ADMIN";
+const filteredMenu = menu.filter(item => {
+  if (item === "divider") return true; // Always show dividers
+
+  if (userRole === "ADMIN") {
+    return true; // Show all items for ADMIN
+  }
+
+  // For FIELD-TECHNICIAN, show only Dashboard, Notifications, and Employees menu
+  if (userRole === "FIELD-TECHNICIAN") {
+    if (item instanceof Object) {
+      return item.title === "Dashboard" || item.title === "Notifications" || item.title === "Employees";
+    }
+  }
+
+  return true; // Default to false for other cases
+});
+
+export default filteredMenu;

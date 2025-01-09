@@ -10,6 +10,7 @@ export interface Menu {
   badge?: number;
   pathname?: string;
   subMenu?: Menu[];
+  roles?:string[];
   ignore?: boolean;
   onClick?: () => void;
 }
