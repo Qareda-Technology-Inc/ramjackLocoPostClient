@@ -1,7 +1,7 @@
 import { useRoutes } from "react-router-dom";
-import DashboardOverview1 from "../pages/DashboardOverview1";
+import DashboardOverview1 from "../pages/AdminDashboard";
 import DashboardOverview2 from "../pages/DashboardOverview2";
-import DashboardOverview3 from "../pages/DashboardOverview3";
+import DashboardOverview3 from "../pages/EmployeeHome";
 import DashboardOverview4 from "../pages/DashboardOverview4";
 import Categories from "../pages/Categories";
 import AddProduct from "../pages/AddProduct";

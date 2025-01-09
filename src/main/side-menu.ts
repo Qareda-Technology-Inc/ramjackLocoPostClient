@@ -100,11 +100,16 @@ const menu: Array<Menu | "divider"> = [
     pathname: "/login",
     title: "Logout",
   },
+  {
+    icon: 'Airplay',
+    pathname: '/approve',
+    title: 'Home'
+  },
 ];
 
 // Fetch the logged-in user's role from the Redux store
 // const userRole = useSelector((state: RootState) => state.user.user?.role);
-const userRole = "ADMIN";
+const userRole = "FIELD-TECHNICIAN";
 const filteredMenu = menu.filter(item => {
   if (item === "divider") return true; // Always show dividers
 
@@ -115,7 +120,7 @@ const filteredMenu = menu.filter(item => {
   // For FIELD-TECHNICIAN, show only Dashboard, Notifications, and Employees menu
   if (userRole === "FIELD-TECHNICIAN") {
     if (item instanceof Object) {
-      return item.title === "Dashboard" || item.title === "Notifications" || item.title === "Employees";
+      return item.title === "Home";
     }
   }
 

@@ -1,7 +1,7 @@
 import { useRoutes } from "react-router-dom";
-import DashboardOverview1 from "../pages/DashboardOverview1";
+import AdminDashboard from "../pages/AdminDashboard";
 import DashboardOverview2 from "../pages/DashboardOverview2";
-import DashboardOverview3 from "../pages/DashboardOverview3";
+import EmployeeHome from "../pages/EmployeeHome";
 import Employees from "../pages/Employees";
 import UsersLayout3 from "../pages/UsersLayout3";
 import ProfileOverview2 from "../pages/ProfileOverview2";
@@ -15,7 +15,7 @@ import BlogLayout3 from "../pages/BlogLayout3";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ErrorPage from "../pages/ErrorPage";
-import ProfileOverview1 from "../pages/ViewEmployee";
+import ViewEmployee from "../pages/ViewEmployee";
 import EditEmployee from "../pages/EditEmployee";
 
 import ProductList from "../pages/Sites";
@@ -32,6 +32,10 @@ import AddSite from "@/pages/AddSite";
 import Assignment from "@/pages/Assignment";
 import Assignments from "@/pages/Assignments";
 import EditAssignment from "@/pages/EditAssignment";
+import Accordion from "@/pages/Accordion";
+import Alert from "@/pages/Alert";
+import WysiwygEditor from "@/pages/WysiwygEditor";
+import TomSelect from "@/pages/TomSelect";
 
 function Router() {
   const routes = [
@@ -41,7 +45,7 @@ function Router() {
       children: [
         {
           path: "/",
-          element: <PrivateRoute element={<DashboardOverview1 />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN"]} />,
+          element: <PrivateRoute element={<AdminDashboard />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN"]} />,
         },
         {
           path: "employees",
@@ -49,7 +53,7 @@ function Router() {
         },
         {
           path: "view-employee/:id",
-          element: <PrivateRoute element={<ProfileOverview1 />} allowedRoles={["ADMIN", "PRESIDENT"]} />,
+          element: <PrivateRoute element={<ViewEmployee />} allowedRoles={["ADMIN", "PRESIDENT"]} />,
         },
         {
           path: "edit-employee/:id",
@@ -107,6 +111,10 @@ function Router() {
         {
           path: "user-permissions",
           element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
+        },
+        {
+          path: "approve",
+          element: <PrivateRoute element={<EmployeeHome />} allowedRoles={["FIELD-TECHNICIAN", "PRESIDENT"]} />, 
         },
       ],
     },
