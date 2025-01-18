@@ -10,6 +10,8 @@ import Lucide from "@/components/Base/Lucide";
 import clsx from "clsx";
 import TopBar from "@/components/Themes/Enigma/TopBar";
 import MobileMenu from "@/components/MobileMenu";
+import { RootState } from "@/stores/store";
+import { useSelector } from "react-redux";
 
 function Main() {
   const navigate = useNavigate();
@@ -17,17 +19,57 @@ function Main() {
   const [formattedMenu, setFormattedMenu] = useState<
     Array<FormattedMenu | "divider">
   >([]);
+  const user = useSelector((state: RootState) => state.auth.user);
   const menuStore = useAppSelector(selectMenu("side-menu"));
-  const sideMenu = () => nestedMenu(menuStore, location);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
-    setFormattedMenu(sideMenu());
+    console.log("Auth State Changed:", {
+      user,
+      role: user?.role
+    });
+  }, [user]);
+
+  const sideMenu = () => {
+    const baseMenu = nestedMenu(menuStore, location);
+    
+    if (!user?.role) {
+      console.log("No user role found, showing default menu");
+      return baseMenu;
+    }
+
+    console.log("Filtering menu for role:", user.role);
+    return baseMenu.filter(item => {
+      if (item === "divider") return true;
+
+      if (user.role === "ADMIN") {
+        return true;
+      }
+
+      if (user.role === "FIELD-TECHNICIAN" && item instanceof Object) {
+        if (item.subMenu) {
+          return item.title === "Sites";
+        }
+
+        const allowedPaths = ['/', '/sites', '/notification', '/login'];
+        const isAllowed = item.pathname ? allowedPaths.includes(item.pathname) : false;
+        console.log(`Menu item ${item.title} allowed:`, isAllowed);
+        return isAllowed;
+      }
+
+      return false;
+    });
+  };
+
+  useEffect(() => {
+    const menu = sideMenu();
+    console.log("Setting formatted menu:", menu);
+    setFormattedMenu(menu);
 
     window.addEventListener("resize", () => {
       setWindowWidth(window.innerWidth);
     });
-  }, [menuStore, location.pathname]);
+  }, [menuStore, location.pathname, user?.role]);
 
   return (
     <div

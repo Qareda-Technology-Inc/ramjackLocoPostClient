@@ -22,7 +22,11 @@ export const store = configureStore({
 });
 
 export type AppDispatch = typeof store.dispatch;
-export type RootState = ReturnType<typeof store.getState>;
+export interface RootState {
+  auth: ReturnType<typeof authReducer>;
+  menu: ReturnType<typeof menuReducer>;
+  // ... other slices
+}
 export type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
   RootState,

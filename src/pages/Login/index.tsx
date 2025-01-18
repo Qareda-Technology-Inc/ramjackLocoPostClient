@@ -8,10 +8,11 @@ import Button from "@/components/Base/Button";
 import clsx from "clsx";
 import { useNavigate } from 'react-router-dom';
 import { AppDispatch } from "@/stores/store";
-import { login } from "@/stores/authSlice";
+import { login, setUser } from "@/stores/authSlice";
 import { unwrapResult } from '@reduxjs/toolkit';
 import { redirectToPage } from '@/utils/roleRedirect';
 import ShowMessage from '@/components/ShowMessage'; // Import your ShowMessage component
+import { useAppDispatch } from "@/stores/hooks";
 
 function Main() {
   const navigate = useNavigate();
@@ -31,18 +32,22 @@ function Main() {
       const result = unwrapResult(resultAction);
 
       if (result.success) {
-        setMessage("Login successful!"); // Set success message
-        setIsSuccess(true); // Set success state
+        console.log("Login successful, user data:", result.user); // Debug log
+        
+        // Explicitly dispatch setUser action
+        dispatch(setUser(result.user));
+        
+        setMessage("Login successful!");
+        setIsSuccess(true);
         navigate(redirectToPage(result.user.role));
       } else {
-        // Handle login failure
-        setMessage(result.message); // Set error message from server response
-        setIsSuccess(false); // Set error state
+        setMessage(result.message);
+        setIsSuccess(false);
       }
     } catch (error) {
-      console.error("Unexpected Error", error);
-      setMessage("Unexpected error occurred. Please try again."); // Generic error message
-      setIsSuccess(false); // Set error state
+      console.error("Login Error:", error);
+      setMessage("Unexpected error occurred. Please try again.");
+      setIsSuccess(false);
     } finally {
       setLoading(false);
     }

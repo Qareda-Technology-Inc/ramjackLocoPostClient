@@ -36,6 +36,7 @@ import Accordion from "@/pages/Accordion";
 import Alert from "@/pages/Alert";
 import WysiwygEditor from "@/pages/WysiwygEditor";
 import TomSelect from "@/pages/TomSelect";
+import Dashboard from "@/pages/Dashboard";
 
 function Router() {
   const routes = [
@@ -45,7 +46,7 @@ function Router() {
       children: [
         {
           path: "/",
-          element: <PrivateRoute element={<AdminDashboard />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN"]} />,
+          element: <PrivateRoute element={<Dashboard />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN"]} />,
         },
         {
           path: "employees",

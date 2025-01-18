@@ -8,7 +8,6 @@ export const login = createAsyncThunk(
   async ({ identityNo, password }: { identityNo: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await api.post('users/login', { identityNo, password }); // Adjust the endpoint accordingly
-      console.log("Logs", response.data);
       return response.data;
     } catch (error: any) {
       // Check if the error has a response and a message
@@ -30,7 +29,7 @@ const initialState: AuthState = {
   user: null,
 };
 
-const authSlice = createSlice({
+export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
@@ -42,10 +41,15 @@ const authSlice = createSlice({
     },
     logout: (state) => {
       state.user = null;
-      localStorage.removeItem('token'); // Remove the token from localStorage
+      // Clear both token and user
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     },
     setUser: (state, action) => {
       state.user = action.payload;
+      // Store user in localStorage
+      localStorage.setItem('user', JSON.stringify(action.payload));
+      console.log("User set in Redux and localStorage:", action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -57,10 +61,10 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        // Store token in localStorage
-        if (action.payload.token) {
-          localStorage.setItem('token', action.payload.token);
-        }
+        // Store both token and user
+        localStorage.setItem('token', action.payload.token);
+        localStorage.setItem('user', JSON.stringify(action.payload.user));
+        console.log("Login fulfilled, storing user data");
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;

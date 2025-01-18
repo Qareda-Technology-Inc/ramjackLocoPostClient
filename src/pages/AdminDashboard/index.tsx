@@ -59,13 +59,13 @@ function Main() {
         });
         setAssignments(assignmentResponse.data);
 
-        const approachingResponse = await api.get("/users/approaching-date", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          // params:{days:50}
-        });
-        setApproaching(approachingResponse.data);
+        // const approachingResponse = await api.get("/users/approaching-date", {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`
+        //   },
+        //   // params:{days:50}
+        // });
+        // setApproaching(approachingResponse.data);
       } catch (error) {
         console.error(error)
       }

@@ -10,8 +10,11 @@ import ReportBarChart1 from "@/components/ReportBarChart1";
 import ReportDonutChart2 from "@/components/ReportDonutChart2";
 import LeafletMap from "@/components/LeafletMap";
 import { Menu, Tab } from "@/components/Base/Headless";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/stores/store';
 
 function Main() {
+  const user = useSelector((state: RootState) => state.auth.user);
   return (
     <>
       <div className="relative">
@@ -22,7 +25,7 @@ function Main() {
             <div className="grid grid-cols-12 mb-3 mt-14 sm:gap-10 intro-y">
               <div className="relative col-span-12 py-6 text-center sm:col-span-6 md:col-span-4 sm:pl-5 md:pl-0 lg:pl-5 sm:text-left">
                 <div className="-mb-1 text-sm font-medium 2xl:text-base">
-                  Hi Angelina,{" "}
+                  Hi {user?.firstName} {user?.lastName},{" "}
                   <span className="font-normal text-slate-600 dark:text-slate-300">
                     welcome back!
                   </span>

@@ -1,8 +1,9 @@
-import { useSelector } from 'react-redux';
-import { RootState } from "@/stores/store"; // Import your RootState from your Redux store
-import { Menu } from "@/stores/menuSlice"; // Assuming Menu type is imported from the correct file
+import { Menu } from "@/stores/menuSlice";
 
-const menu: Array<Menu | "divider"> = [
+// First, let's create a type for menu items
+type MenuItem = Menu | "divider";
+
+const menu: MenuItem[] = [
   {
     icon: "Home",
     title: "Dashboard",
@@ -100,31 +101,6 @@ const menu: Array<Menu | "divider"> = [
     pathname: "/login",
     title: "Logout",
   },
-  {
-    icon: 'Airplay',
-    pathname: '/approve',
-    title: 'Home'
-  },
 ];
 
-// Fetch the logged-in user's role from the Redux store
-// const userRole = useSelector((state: RootState) => state.user.user?.role);
-const userRole = "FIELD-TECHNICIAN";
-const filteredMenu = menu.filter(item => {
-  if (item === "divider") return true; // Always show dividers
-
-  if (userRole === "ADMIN") {
-    return true; // Show all items for ADMIN
-  }
-
-  // For FIELD-TECHNICIAN, show only Dashboard, Notifications, and Employees menu
-  if (userRole === "FIELD-TECHNICIAN") {
-    if (item instanceof Object) {
-      return item.title === "Home";
-    }
-  }
-
-  return true; // Default to false for other cases
-});
-
-export default filteredMenu;
+export default menu;

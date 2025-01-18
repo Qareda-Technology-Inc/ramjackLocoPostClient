@@ -1,15 +1,37 @@
 import ScrollToTop from "@/components/Base/ScrollToTop";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { Provider, useSelector } from "react-redux";  // Import useSelector
+import { Provider, useSelector, useDispatch } from "react-redux";
 import { store } from "./stores/store";
 import Router from "./router/route";
 import "./assets/css/app.css";
-import { LoadingTag } from "@/components/Loading"; // Import GlobalLoader
-import { RootState } from '@/stores/store'; // Import RootState to type the useSelector
+import { LoadingTag } from "@/components/Loading";
+import { RootState } from '@/stores/store';
+import { useEffect } from "react";
+import { setUser } from "@/stores/authSlice";
 
 const App = () => {
-  const loading = useSelector((state: RootState) => state.auth.loading); // Get loading state
+  const dispatch = useDispatch();
+  const loading = useSelector((state: RootState) => state.auth.loading);
+
+  useEffect(() => {
+    // Check for both token and user data
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+
+    if (token && storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        console.log("Restoring user session from localStorage");
+        dispatch(setUser(user));
+      } catch (error) {
+        console.error("Error parsing stored user data:", error);
+        // Handle invalid stored data
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
+    }
+  }, [dispatch]);
 
   return (
     <>
