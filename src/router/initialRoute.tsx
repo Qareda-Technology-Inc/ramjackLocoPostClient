@@ -40,7 +40,7 @@ import FaqLayout1 from "../pages/FaqLayout1";
 import FaqLayout2 from "../pages/FaqLayout2";
 import FaqLayout3 from "../pages/FaqLayout3";
 import Login from "../pages/Login";
-import Register from "../pages/Register";
+import Register from "../pages/ForgotPassword";
 import ErrorPage from "../pages/ErrorPage";
 import UpdateProfile from "../pages/UpdateProfile";
 import ChangePassword from "../pages/ChangePassword";

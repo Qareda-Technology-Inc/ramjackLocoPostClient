@@ -1,22 +1,14 @@
-import * as lucideIcons from "lucide-react";
-import { twMerge } from "tailwind-merge";
+import { icons } from "lucide-react";
+import { LucideIcon } from 'lucide-react';
 
-export const { icons } = lucideIcons;
-
-interface LucideProps extends React.ComponentPropsWithoutRef<"svg"> {
+interface LucideProps {
   icon: keyof typeof icons;
-  title?: string;
+  className?: string;
 }
 
-function Lucide(props: LucideProps) {
-  const { icon, className, ...computedProps } = props;
-  const Component = icons[props.icon];
-  return (
-    <Component
-      {...computedProps}
-      className={twMerge(["stroke-1.5 w-5 h-5", props.className])}
-    />
-  );
+function Lucide({ icon, className }: LucideProps) {
+  const Icon: LucideIcon = icons[icon];
+  return Icon ? <Icon className={className} /> : null;
 }
 
 export default Lucide;

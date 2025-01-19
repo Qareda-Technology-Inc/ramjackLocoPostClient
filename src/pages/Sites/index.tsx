@@ -20,6 +20,7 @@ function Main() {
   const [deleteConfirmationModal, setDeleteConfirmationModal] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const deleteButtonRef = useRef(null);
+  const [selectedSite, setSelectedSite] = useState<Site | null>(null);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -65,6 +66,26 @@ function Main() {
 
   const editSite = (siteId: string) => {
     navigate(`/edit-site/${siteId}`);
+  };
+
+  const deleteSite = async () => {
+    if (!selectedSite) return;
+    
+    try {
+      await api.delete(`/sites/${selectedSite._id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Remove site from state
+      setSites(sites.filter(site => site._id !== selectedSite._id));
+      setDeleteConfirmationModal(false);
+      
+      // Show success notification
+      showNotification(true, "Site deleted successfully");
+    } catch (error) {
+      console.error("Error deleting site:", error);
+      showNotification(false, "Failed to delete site");
+    }
   };
 
   return (
@@ -196,6 +217,7 @@ function Main() {
                         href="#"
                         onClick={(event) => {
                           event.preventDefault();
+                          setSelectedSite(site);
                           setDeleteConfirmationModal(true);
                         }}
                       >
@@ -251,6 +273,7 @@ function Main() {
               type="button"
               className="w-24"
               ref={deleteButtonRef}
+              onClick={deleteSite}
             >
               Delete
             </Button>

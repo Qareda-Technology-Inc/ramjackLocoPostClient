@@ -6,6 +6,7 @@ import imageUrl from '@/assets/images/logoSingle.png';
 import { useNavigate } from "react-router-dom";
 import { Assignment } from "@/types/assignment";
 import api from "@/api/axios";
+import { Eye, Edit2, Trash2, Search, Plus } from "lucide-react";
 
 // Function to calculate remaining time
 const calculateRemainingTime = (endDate: string) => {
@@ -68,7 +69,35 @@ function Main() {
   };
 
   const viewAssignment = (assignment: Assignment) => {
-    navigate(`/view-employee/${assignment._id}`, { state: { assignment } });
+    console.log("Viewing Assignment:", assignment);
+    // Make sure all required data is present
+    if (!assignment.employee || !assignment.site) {
+      console.error("Missing assignment data:", assignment);
+      return;
+    }
+    
+    navigate(`/view-assignment/${assignment._id}`, { 
+      state: { 
+        assignment: {
+          ...assignment,
+          startDate: assignment.startDate,
+          endDate: assignment.endDate,
+          employee: {
+            ...assignment.employee,
+            firstName: assignment.employee.firstName,
+            lastName: assignment.employee.lastName,
+            identityNo: assignment.employee.identityNo,
+            role: assignment.employee.role
+          },
+          site: {
+            ...assignment.site,
+            name: assignment.site.name,
+            location: assignment.site.location,
+            country: assignment.site.country
+          }
+        } 
+      } 
+    });
   };
 
   const editAssignment = (assignmentId: string) => {
@@ -111,6 +140,7 @@ function Main() {
       <div className="grid grid-cols-12 gap-6 mt-5">
         <div className="flex flex-wrap items-center col-span-12 mt-2 intro-y sm:flex-nowrap">
           <Button variant="primary" className="mr-2 shadow-md" onClick={handleAssign}>
+            <Lucide icon="plus" className="w-4 h-4 mr-2" />
             Assign New Employee
           </Button>
           <div className="hidden mx-auto md:block text-slate-500">
@@ -125,10 +155,7 @@ function Main() {
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
-              <Lucide
-                icon="Search"
-                className="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3"
-              />
+              <Lucide icon="search" className="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
             </div>
           </div>
         </div>
@@ -161,13 +188,28 @@ function Main() {
                     </div>
                   </div>
                   <div className="flex mt-4 lg:mt-0">
-                    <Button variant="primary" className="px-2 py-1 mr-2" onClick={() => viewAssignment(assignment)}>
+                    <Button 
+                      variant="primary" 
+                      className="px-2 py-1 mr-2" 
+                      onClick={() => viewAssignment(assignment)}
+                    >
+                      <Lucide icon="eye" className="w-4 h-4 mr-1" />
                       View
                     </Button>
-                    <Button variant="outline-secondary" className="px-2 py-1 mr-2" onClick={() => editAssignment(assignment._id)}>
+                    <Button 
+                      variant="outline-secondary" 
+                      className="px-2 py-1 mr-2" 
+                      onClick={() => editAssignment(assignment._id)}
+                    >
+                      <Lucide icon="edit-2" className="w-4 h-4 mr-1" />
                       Edit
                     </Button>
-                    <Button variant="danger" className="px-2 py-1" onClick={() => deleteAssignment(assignment._id)}>
+                    <Button 
+                      variant="danger" 
+                      className="px-2 py-1" 
+                      onClick={() => deleteAssignment(assignment._id)}
+                    >
+                      <Lucide icon="trash-2" className="w-4 h-4 mr-1" />
                       Delete
                     </Button>
                   </div>

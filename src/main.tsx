@@ -9,6 +9,7 @@ import { LoadingTag } from "@/components/Loading";
 import { RootState } from '@/stores/store';
 import { useEffect } from "react";
 import { setUser } from "@/stores/authSlice";
+import 'toastify-js/src/toastify.css';
 
 const App = () => {
   const dispatch = useDispatch();

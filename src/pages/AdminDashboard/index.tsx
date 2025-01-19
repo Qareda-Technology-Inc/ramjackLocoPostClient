@@ -25,6 +25,8 @@ function Main() {
   const [sites, setSites] = useState<Site[]>();
   const [assignments, setAssignments] = useState<Assignment[]>();
   const [approaching, setApproaching] = useState<User[]>([]);
+  const [availableEmployees, setAvailableEmployees] = useState<number>(0);
+  const [historicalData, setHistoricalData] = useState<Array<{year: string, percentage: number}>>([]);
 
   const [salesReportFilter, setSalesReportFilter] = useState<string>();
   const importantNotesRef = useRef<TinySliderElement>();
@@ -59,15 +61,50 @@ function Main() {
         });
         setAssignments(assignmentResponse.data);
 
-        // const approachingResponse = await api.get("/users/approaching-date", {
-        //   headers: {
-        //     Authorization: `Bearer ${token}`
-        //   },
-        //   // params:{days:50}
-        // });
-        // setApproaching(approachingResponse.data);
+        // Get employees with approaching end dates
+        const approachingResponse = await api.get("/assignments/approaching", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          params: { days: 30 } // Assignments ending in next 30 days
+        });
+        setApproaching(approachingResponse.data);
+
+        // Calculate available employees (those without active assignments)
+        const activeAssignments = assignmentResponse.data.filter(
+          (assignment: Assignment) => assignment.status === 'ACTIVE'
+        );
+        const assignedEmployeeIds = new Set(activeAssignments.map((a: Assignment) => a.employeeId));
+        const availableCount = employeeResponse.data.filter(
+          (emp: User) => !assignedEmployeeIds.has(emp.id)
+        ).length;
+        setAvailableEmployees(availableCount);
+
+        // Calculate historical assignment data
+        if (assignmentResponse.data && assignmentResponse.data.length > 0) {
+          const assignmentsByYear = assignmentResponse.data.reduce((acc: {[key: string]: number}, curr: Assignment) => {
+            const year = new Date(curr.startDate).getFullYear().toString();
+            acc[year] = (acc[year] || 0) + 1;
+            return acc;
+          }, {});
+          
+          const total = Object.values(assignmentsByYear).reduce((a, b) => a + b, 0);
+          const historicalStats = Object.entries(assignmentsByYear)
+            .sort(([yearA], [yearB]) => Number(yearB) - Number(yearA)) // Sort by year descending
+            .map(([year, count]) => ({
+              year,
+              percentage: Math.round((count / total) * 100)
+            }))
+            .slice(0, 3); // Only take the last 3 years
+            
+          setHistoricalData(historicalStats);
+        } else {
+          setHistoricalData([]); // Set empty array if no data
+        }
+
       } catch (error) {
-        console.error(error)
+        console.error(error);
+        setHistoricalData([]); // Set empty array on error
       }
     }
     fetchEmployees();
@@ -181,7 +218,7 @@ function Main() {
                       </div>
                     </div>
                     <div className="mt-6 text-3xl font-medium leading-8">
-                      15
+                      {availableEmployees}
                     </div>
                     <div className="mt-1 text-base text-slate-500">
                       AVAILABLE EMPLOYEE
@@ -281,21 +318,20 @@ function Main() {
                 <ReportDonutChart height={213} />
               </div>
               <div className="mx-auto mt-8 w-52 sm:w-auto">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 mr-3 rounded-full bg-primary"></div>
-                  <span className="truncate">2024</span>
-                  <span className="ml-auto font-medium">62%</span>
-                </div>
-                <div className="flex items-center mt-4">
-                  <div className="w-2 h-2 mr-3 rounded-full bg-pending"></div>
-                  <span className="truncate">2023</span>
-                  <span className="ml-auto font-medium">33%</span>
-                </div>
-                <div className="flex items-center mt-4">
-                  <div className="w-2 h-2 mr-3 rounded-full bg-warning"></div>
-                  <span className="truncate">2020</span>
-                  <span className="ml-auto font-medium">10%</span>
-                </div>
+                {historicalData.length === 0 ? (
+                  <div className="text-center text-gray-500">No historical data available</div>
+                ) : (
+                  historicalData.map((stat, index) => (
+                    <div className="flex items-center mt-4" key={stat.year}>
+                      <div className={`w-2 h-2 mr-3 rounded-full ${
+                        index === 0 ? 'bg-primary' : 
+                        index === 1 ? 'bg-pending' : 'bg-warning'
+                      }`}></div>
+                      <span className="truncate">{stat.year}</span>
+                      <span className="ml-auto font-medium">{stat.percentage}%</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -341,35 +377,28 @@ function Main() {
               </div>
               <div className="mt-5">
                 {approaching.length === 0 ? (
-                  <div>No approaching Date</div>
-                ): (
+                  <div className="text-center text-gray-500 py-4">No approaching assignments</div>
+                ) : (
                   <>
-                  {_.take(approaching, 5).map((faker, fakerKey) => (
-                  <div key={fakerKey} className="intro-x">
-                    <div className="flex items-center px-5 py-3 mb-3 box zoom-in">
-                      <div className="flex-none w-10 h-10 overflow-hidden rounded-full image-fit">
-                        {/* <img
-                          alt="Qaretech Innovative"
-                          src={faker.photos[0]}
-                        /> */}
-                      </div>
-                      <div className="ml-4 mr-auto">
-                        <div className="font-medium">{faker.firstName}</div>
-                        <div className="text-slate-500 text-xs mt-0.5">
-                          {/* {faker.assignments?.endDat} */}
+                    {approaching.map((employee: User, index: number) => (
+                      <div key={index} className="intro-x">
+                        <div className="flex items-center px-5 py-3 mb-3 box zoom-in">
+                          <div className="flex-none w-10 h-10 overflow-hidden rounded-full bg-slate-200 flex items-center justify-center">
+                            <Lucide icon="User" className="w-5 h-5" />
+                          </div>
+                          <div className="ml-4 mr-auto">
+                            <div className="font-medium">{employee.firstName} {employee.lastName}</div>
+                            <div className="text-slate-500 text-xs mt-0.5">
+                              {new Date(employee.assignment?.endDate).toLocaleDateString()}
+                            </div>
+                          </div>
+                          <div className="text-warning">
+                            Ending Soon
+                          </div>
                         </div>
                       </div>
-                      <div
-                        className={clsx({
-                          "text-success": faker.status === "ACTIVE",
-                          "text-danger": faker.status === "INACTIVE",
-                        })}
-                      >
-                        {/* {faker.status} */}
-                      </div>
-                    </div>
-                  </div>
-                ))}</>
+                    ))}
+                  </>
                 )}
                 
                 <a

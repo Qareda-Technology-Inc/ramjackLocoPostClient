@@ -1,9 +1,11 @@
-import { Site } from "./site"
-import { User } from "./auth";
+import { User } from './auth';
+import { Site } from './site';
+
 export interface Assignment {
-    _id: string;
-    startDate: Date;
-    endDate: Date;
-    employee: User;
-    site: Site;
+  _id: string;
+  employee: User;
+  site: Site;
+  startDate: Date | string;
+  endDate: Date | string;
+  status: 'ACTIVE' | 'COMPLETED' | 'PENDING';
 }

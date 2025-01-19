@@ -31,6 +31,17 @@ function Main(props: { layout?: "side-menu" }) {
     navigate("/login");
   }
 
+  const handleViewProfile = () => {
+    if (user?._id) {
+      navigate(`/profile/${user._id}`);
+    }
+  };
+
+
+  const handleChangePassword = () => {
+    navigate('/change-password');
+  };
+
   return (
     <>
       <div
@@ -124,7 +135,7 @@ function Main(props: { layout?: "side-menu" }) {
             <Menu.Button className="block w-8 h-8 overflow-hidden rounded-full shadow-lg image-fit zoom-in intro-x">
               <img
                 alt="Qaretech Innovative"
-                src={user?.avatar || logoUrl}
+                src={user?.image || logoUrl}
               />
             </Menu.Button>
             <Menu.Items className="w-56 mt-px relative bg-primary/80 before:block before:absolute before:bg-black before:inset-0 before:rounded-md before:z-[-1] text-white">
@@ -135,11 +146,11 @@ function Main(props: { layout?: "side-menu" }) {
                 </div>
               </Menu.Header>
               <Menu.Divider className="bg-white/[0.08]" />
-              <Menu.Item className="hover:bg-white/5">
+              <Menu.Item onClick={handleViewProfile} className="hover:bg-white/5">
                 <Lucide icon="User" className="w-4 h-4 mr-2" /> Profile
               </Menu.Item>
-              <Menu.Item className="hover:bg-white/5">
-                <Lucide icon="Lock" className="w-4 h-4 mr-2" /> Reset Password
+              <Menu.Item onClick={handleChangePassword} className="hover:bg-white/5">
+                <Lucide icon="Lock" className="w-4 h-4 mr-2" /> Change Password
               </Menu.Item>
               <Menu.Item className="hover:bg-white/5">
                 <Lucide icon="HelpCircle" className="w-4 h-4 mr-2" /> Help

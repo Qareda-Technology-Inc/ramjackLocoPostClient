@@ -246,18 +246,24 @@ import { LoadingTag } from "@/components/Loading";
                 {/* Image Upload */}
                 <div className="input-form intro-y">
                   <FormLabel htmlFor="image" className="flex flex-col">
-                  Upload an image (Optional)
+                    Upload an image (Optional)
                   </FormLabel>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={onFileChange}
-                    className="border rounded-md px-4 py-2"
-                  />
-                  <img src={image} alt="" className="rounded-full w-20 h-20"/>
-                  <div className="absolute p-2 mb-1 mr-1 rounded-full bg-primary top-28 left-6">
-                  <Lucide icon="Camera" className="w-4 h-4 text-white" />
-                </div>                  
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={onFileChange}
+                      className="border rounded-md px-4 py-2 w-full"
+                    />
+                    {image && (
+                      <div className="mt-2 relative inline-block">
+                        <img src={image} alt="" className="rounded-lg w-20 h-20 object-cover"/>
+                        <div className="absolute p-2 -top-2 -right-2 rounded-full bg-primary">
+                          <Lucide icon="Camera" className="w-4 h-4 text-white" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Active */}
@@ -265,12 +271,15 @@ import { LoadingTag } from "@/components/Loading";
                   <FormLabel htmlFor="active" className="flex flex-col">
                     Active
                   </FormLabel>
-                  <input
-                    {...register("active")}
-                    id="active"
-                    type="checkbox"
-                    className="mt-6 w-8 h-8 border rounded-md"
-                  />
+                  <div className="flex items-center mt-2">
+                    <input
+                      {...register("active")}
+                      id="active"
+                      type="checkbox"
+                      className="w-5 h-5 border rounded-md"
+                    />
+                    <span className="ml-2 text-sm text-slate-600">Enable this site</span>
+                  </div>
                 </div>
                 
               </div>

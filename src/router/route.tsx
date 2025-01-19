@@ -13,7 +13,7 @@ import BlogLayout1 from "../pages/BlogLayout1";
 import BlogLayout2 from "../pages/BlogLayout2";
 import BlogLayout3 from "../pages/BlogLayout3";
 import Login from "../pages/Login";
-import Register from "../pages/Register";
+import ForgotPassword from "../pages/ForgotPassword";
 import ErrorPage from "../pages/ErrorPage";
 import ViewEmployee from "../pages/ViewEmployee";
 import EditEmployee from "../pages/EditEmployee";
@@ -37,6 +37,14 @@ import Alert from "@/pages/Alert";
 import WysiwygEditor from "@/pages/WysiwygEditor";
 import TomSelect from "@/pages/TomSelect";
 import Dashboard from "@/pages/Dashboard";
+import ViewSite from "@/pages/ViewSite";
+import EditSite from "@/pages/EditSite";
+import ViewAssignment from "@/pages/ViewAssignment";
+import Profile from "@/pages/Profile";
+import EditProfile from "@/pages/EditProfile";
+
+import ChangePassword from"@/pages/ChangePassword";
+import ResetPassword from "@/pages/ResetPassword";
 
 function Router() {
   const routes = [
@@ -73,13 +81,13 @@ function Router() {
           element: <PrivateRoute element={<AddSite />} allowedRoles={["ADMIN"]} />,
         },
         {
-          path: "view-site/id",
-          element: <PrivateRoute element={<AddSite />} allowedRoles={["ADMIN"]} />,
+          path: "view-site/:id",
+          element: <PrivateRoute element={<ViewSite />} allowedRoles={["ADMIN"]} />,
         },
 
         {
-          path: "edit-site/id",
-          element: <PrivateRoute element={<AddSite />} allowedRoles={["ADMIN"]} />,
+          path: "edit-site/:id",
+          element: <PrivateRoute element={<EditSite />} allowedRoles={["ADMIN"]} />,
         },
         {
           path: "view-assign",
@@ -117,15 +125,37 @@ function Router() {
           path: "approve",
           element: <PrivateRoute element={<EmployeeHome />} allowedRoles={["FIELD-TECHNICIAN", "PRESIDENT"]} />, 
         },
+        {
+          path: "view-assignment/:id",
+          element: <PrivateRoute element={<ViewAssignment />} allowedRoles={["ADMIN"]} />,
+        },
+        {
+          path: "/profile/:userId",
+          element: <PrivateRoute element={<Profile />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "PRESIDENT"]} />,
+        },
+        {
+          path: "/edit-profile/:userId",
+          element: <PrivateRoute element={<EditProfile />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "PRESIDENT"]} />,
+        },
       ],
     },
     {
       path: "/login",
       element: <Login />,
     },
+    // forgot password
     {
-      path: "/register",
-      element: <Register />,
+      path: "/forgot-password",
+      element: <ForgotPassword />,
+    },
+    {
+      path: "/reset-password/:token",
+      element: <ResetPassword />
+    },
+    // first time login
+    {
+      path: "/change-password",
+      element: <ChangePassword />
     },
     {
       path: "/error-page",
