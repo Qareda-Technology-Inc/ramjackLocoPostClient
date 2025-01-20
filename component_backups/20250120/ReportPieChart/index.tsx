@@ -64,4 +64,4 @@ function Main({ width = "auto", height = "auto", className = "" }: MainProps) {
   );
 }
 
-export default Main; 
+export default Main;

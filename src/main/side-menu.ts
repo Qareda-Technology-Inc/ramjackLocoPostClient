@@ -101,6 +101,11 @@ const menu: MenuItem[] = [
     pathname: "/login",
     title: "Logout",
   },
+  {
+    icon: "Eye",
+    pathname: "/test",
+    title: "Test",
+  }
 ];
 
 export default menu;

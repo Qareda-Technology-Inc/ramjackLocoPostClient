@@ -1,0 +1,15 @@
+{
+  "ignores": [
+    "@types/*",
+    "autoprefixer",
+    "postcss*",
+    "tailwindcss",
+    "@vitejs/*"
+  ],
+  "skipMissing": false,
+  "ignore-patterns": [
+    "dist",
+    "build",
+    "node_modules"
+  ]
+} 

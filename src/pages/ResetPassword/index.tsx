@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import ThemeSwitcher from "@/components/ThemeSwitcher";
 import logoUrl from "@/assets/images/logoSingle.png";
 import illustrationUrl from "@/assets/images/logo.png";
 import { FormInput } from "@/components/Base/Form";
@@ -102,7 +101,6 @@ function Main() {
               "after:hidden after:xl:block after:content-[''] after:w-[57%] after:-mt-[20%] after:-mb-[13%] after:-ml-[13%] after:absolute after:inset-y-0 after:left-0 after:transform after:rotate-[-4.5deg] after:bg-primary after:rounded-[100%] after:dark:bg-darkmode-700",
             ])}
           >
-            <ThemeSwitcher />
             <div className="container relative z-10 sm:px-10">
               <div className="block grid-cols-2 gap-4 xl:grid">
                 {/* BEGIN: Reset Password Info */}

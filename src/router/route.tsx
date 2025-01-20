@@ -1,29 +1,13 @@
 import { useRoutes } from "react-router-dom";
-import AdminDashboard from "../pages/AdminDashboard";
-import DashboardOverview2 from "../pages/DashboardOverview2";
 import EmployeeHome from "../pages/EmployeeHome";
 import Employees from "../pages/Employees";
-import UsersLayout3 from "../pages/UsersLayout3";
-import ProfileOverview2 from "../pages/ProfileOverview2";
-import ProfileOverview3 from "../pages/ProfileOverview3";
-import WizardLayout1 from "../pages/WizardLayout1";
-import WizardLayout2 from "../pages/WizardLayout2";
-import WizardLayout3 from "../pages/WizardLayout3";
-import BlogLayout1 from "../pages/BlogLayout1";
-import BlogLayout2 from "../pages/BlogLayout2";
-import BlogLayout3 from "../pages/BlogLayout3";
+import Test from "../pages/FaqLayout2";
 import Login from "../pages/Login";
 import ForgotPassword from "../pages/ForgotPassword";
 import ErrorPage from "../pages/ErrorPage";
 import ViewEmployee from "../pages/ViewEmployee";
 import EditEmployee from "../pages/EditEmployee";
-
-import ProductList from "../pages/Sites";
-
-import RegularForm from "../pages/RegularForm";
-
 import Layout from "../themes";
-
 import PrivateRoute from "@/components/PrivateRoute";
 import Unauthorized from "@/pages/Unauthorized";
 import AddUser from "@/pages/AddUser";
@@ -32,17 +16,12 @@ import AddSite from "@/pages/AddSite";
 import Assignment from "@/pages/Assignment";
 import Assignments from "@/pages/Assignments";
 import EditAssignment from "@/pages/EditAssignment";
-import Accordion from "@/pages/Accordion";
-import Alert from "@/pages/Alert";
-import WysiwygEditor from "@/pages/WysiwygEditor";
-import TomSelect from "@/pages/TomSelect";
 import Dashboard from "@/pages/Dashboard";
 import ViewSite from "@/pages/ViewSite";
 import EditSite from "@/pages/EditSite";
 import ViewAssignment from "@/pages/ViewAssignment";
 import Profile from "@/pages/Profile";
 import EditProfile from "@/pages/EditProfile";
-
 import ChangePassword from"@/pages/ChangePassword";
 import ResetPassword from "@/pages/ResetPassword";
 
@@ -136,6 +115,10 @@ function Router() {
         {
           path: "/edit-profile/:userId",
           element: <PrivateRoute element={<EditProfile />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "PRESIDENT"]} />,
+        },
+        {
+          path: "/test",
+          element: <PrivateRoute element={<Test />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "PRESIDENT"]} />,
         },
       ],
     },

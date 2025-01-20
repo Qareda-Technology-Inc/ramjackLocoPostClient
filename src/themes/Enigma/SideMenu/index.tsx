@@ -51,7 +51,7 @@ function Main() {
           return item.title === "Sites";
         }
 
-        const allowedPaths = ['/', '/sites', '/notification', '/login'];
+        const allowedPaths = ['/', '/sites', '/notification', '/login', '/test'];
         const isAllowed = item.pathname ? allowedPaths.includes(item.pathname) : false;
         console.log(`Menu item ${item.title} allowed:`, isAllowed);
         return isAllowed;

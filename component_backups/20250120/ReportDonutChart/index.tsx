@@ -28,7 +28,7 @@ function Main({ width = "auto", height = "auto", className = "" }: MainProps) {
   ];
   const data: ChartData = useMemo(() => {
     return {
-      labels: ["Yellow", "Dark"],
+      labels: ["31 - 50 Years old", ">= 50 Years old", "17 - 30 Years old"],
       datasets: [
         {
           data: chartData,
@@ -49,12 +49,13 @@ function Main({ width = "auto", height = "auto", className = "" }: MainProps) {
           display: false,
         },
       },
+      cutout: "80%",
     };
   }, [colorScheme, darkMode]);
 
   return (
     <Chart
-      type="pie"
+      type="doughnut"
       width={props.width}
       height={props.height}
       data={data}
@@ -64,4 +65,4 @@ function Main({ width = "auto", height = "auto", className = "" }: MainProps) {
   );
 }
 
-export default Main; 
+export default Main;

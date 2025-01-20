@@ -42,6 +42,7 @@ function Main({ width = "auto", height = "auto", className = "" }: MainProps) {
           data: [0, 200, 250, 200, 700, 550, 650, 1050, 950, 1100, 900, 1200],
           borderWidth: 2,
           borderColor: colorScheme ? getColor("primary", 0.8) : "",
+
           backgroundColor: "transparent",
           pointBorderColor: "transparent",
           tension: 0.4,
@@ -121,4 +122,4 @@ function Main({ width = "auto", height = "auto", className = "" }: MainProps) {
   );
 }
 
-export default Main; 
+export default Main;

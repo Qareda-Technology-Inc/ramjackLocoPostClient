@@ -2,12 +2,9 @@ import _ from "lodash";
 import clsx from "clsx";
 import fakerData from "@/utils/faker";
 import Button from "@/components/Base/Button";
-import { FormInput, FormSelect } from "@/components/Base/Form";
-import Alert from "@/components/Base/Alert";
+import { FormInput } from "@/components/Base/Form";
 import Lucide from "@/components/Base/Lucide";
 import Tippy from "@/components/Base/Tippy";
-import ReportBarChart1 from "@/components/ReportBarChart1";
-import ReportDonutChart2 from "@/components/ReportDonutChart2";
 import LeafletMap from "@/components/LeafletMap";
 import { Menu, Tab } from "@/components/Base/Headless";
 import { useSelector } from 'react-redux';
@@ -90,53 +87,45 @@ function Main() {
                   </Menu.Items>
                 </Menu>
               </div>
-              <div className="col-span-12 row-start-2 px-10 py-6 -mx-5 border-t border-black border-dashed md:row-start-auto md:col-span-4 border-opacity-10 md:border-t-0 md:border-l md:border-r sm:px-28 md:px-5">
-                
-                <div className="mt-10 text-slate-600 dark:text-slate-300">
-                  Total Activities analysis for the year.
+              <div className="col-span-12 md:col-span-8 mt-3">
+                <div className="flex items-center h-10 intro-x">
+                  <h2 className="mr-5 text-lg font-medium truncate">
+                    Employees Location
+                  </h2>
+                  <a href="" className="ml-auto truncate text-primary">
+                    Show More
+                  </a>
                 </div>
-                <div className="mt-6">
-                  <ReportBarChart1 height={290} />
-                </div>
-              </div>
-              {/* BEGIN: Current Employees and Location */}
-              <div className="col-span-12 mt-6 xl:col-span-4">
-              <div className="flex items-center h-10 intro-y">
-                <h2 className="mr-5 text-lg font-medium truncate">
-                  Current Employees and Location
-                </h2>
-              </div>
-              <div className="mt-5">
-                {_.take(fakerData, 4).map((faker, fakerKey) => (
-                  <div key={fakerKey} className="intro-y">
-                    <div className="flex items-center px-4 py-4 mb-3 box zoom-in">
-                      <div className="flex-none w-10 h-10 overflow-hidden rounded-md image-fit">
+                <div className="mt-5 relative before:block before:absolute before:w-px before:h-[85%] before:bg-slate-200 before:dark:bg-darkmode-400 before:ml-5 before:mt-5">
+                  <div className="relative flex items-center mb-3 intro-x">
+                    <div className="before:block before:absolute before:w-20 before:h-px before:bg-slate-200 before:dark:bg-darkmode-400 before:mt-5 before:ml-5">
+                      <div className="flex-none w-10 h-10 overflow-hidden rounded-full image-fit">
                         <img
-                          alt="Midone Tailwind HTML Admin Template"
-                          src={faker.photos[0]}
+                          alt="Profile"
+                          src={fakerData[9].photos[0]}
                         />
                       </div>
-                      <div className="ml-4 mr-auto">
-                        <div className="font-medium">{faker.users[0].name}</div>
-                        <div className="text-slate-500 text-xs mt-0.5">
-                          {faker.dates[0]}
+                    </div>
+                    <div className="flex-1 px-5 py-3 ml-4 box zoom-in">
+                      <div className="flex items-center">
+                        <div className="font-medium">
+                          {fakerData[9].users[0].name}
+                        </div>
+                        <div className="ml-auto text-xs text-slate-500">
+                          07:00 PM
                         </div>
                       </div>
-                      <div className="px-2 py-1 text-xs font-medium text-white rounded-full cursor-pointer bg-success">
-                        137 Sales
+                      <div className="mt-1 text-slate-500">
+                        Has changed{" "}
+                        <a className="text-primary" href="">
+                          {fakerData[9].products[0].name}
+                        </a>{" "}
+                        status to complete
                       </div>
                     </div>
                   </div>
-                ))}
-                <a
-                  href=""
-                  className="block w-full py-4 text-center border border-dotted rounded-md intro-y border-slate-400 dark:border-darkmode-300 text-slate-500"
-                >
-                  View More
-                </a>
+                </div>
               </div>
-            </div>
-            {/* END: Current Employee and Location */}
             </div>
           </div>
         </div>
@@ -177,7 +166,7 @@ function Main() {
                   <div className="top-0 px-5 pt-5 pb-6 xl:sticky">
                     <div className="flex items-center">
                       <div className="mr-5 text-lg font-medium truncate">
-                        Upcoming Assignments
+                        Upcoming Tasks
                       </div>
                       <a
                         href=""
@@ -191,18 +180,18 @@ function Main() {
 
                   <div className="px-5 pb-5">
                     <div className="grid grid-cols-12 gap-y-6">
-                      <div className="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-12">
-                        <div className="text-slate-500">Unpaid Loan</div>
+                      <div className="col-span-12">
+                        <div className="text-slate-500">Pending Approvals</div>
                         <div className="mt-1.5 flex items-center">
-                          <div className="text-lg">$155.430.000</div>
+                          <div className="text-lg">5 Tasks</div>
                           <Tippy
                             as="div"
-                            className="flex ml-2 text-xs font-medium cursor-pointer text-danger"
-                            content="2% Lower than last month"
+                            className="flex ml-2 text-xs font-medium cursor-pointer text-success"
+                            content="20% Higher than last week"
                           >
-                            2%
+                            20%
                             <Lucide
-                              icon="ChevronDown"
+                              icon="ChevronUp"
                               className="w-4 h-4 ml-0.5"
                             />
                           </Tippy>
@@ -214,7 +203,7 @@ function Main() {
                         className="relative justify-start col-span-12 mb-2 border-dashed border-slate-300 dark:border-darkmode-300"
                       >
                         <span className="mr-5 truncate">
-                          My Portfolio Details
+                          View All Tasks
                         </span>
                         <span className="w-8 h-8 absolute flex justify-center items-center right-0 top-0 bottom-0 my-auto ml-auto mr-0.5">
                           <Lucide icon="ArrowRight" className="w-4 h-4" />
@@ -235,8 +224,7 @@ function Main() {
         ])}
       >
         <div className="relative col-span-12 2xl:col-span-9">
-          <div className=" gap-6">
-            {/* BEGIN: Official Locations */}
+          <div className="gap-6">
             <div className="col-span-12 mt-6 xl:col-span-8">
               <div className="items-center block h-10 intro-y sm:flex">
                 <h2 className="mr-5 text-lg font-medium truncate">
@@ -262,7 +250,6 @@ function Main() {
                 <LeafletMap className="h-[310px] mt-5 rounded-md bg-slate-200" />
               </div>
             </div>
-            {/* END: Official Location */}
           </div>
         </div>
       </div>
