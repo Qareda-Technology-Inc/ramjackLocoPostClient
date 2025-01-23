@@ -7,11 +7,12 @@ const userFromStorage = localStorage.getItem('user')
 
 interface UserState {
   user: {
-    id: string;
-    name: string;
-    email: string;
+    id?: string;
+    name?: string;
+    email?: string;
     avatar?: string;
-    role: string;
+    role?: string;
+    currentSite?: string; // Include currentSite if needed
   } | null;
 }
 
@@ -33,8 +34,12 @@ const userSlice = createSlice({
       // Remove user from localStorage
       localStorage.removeItem('user');
     },
+    updateUser: (state, action: PayloadAction<UserState['user']>) => {
+      state.user = { ...state.user, ...action.payload }; // Update user with new data
+      localStorage.setItem('user', JSON.stringify(state.user)); // Update localStorage
+    },
   },
 });
 
-export const { setUser, clearUser } = userSlice.actions;
+export const { setUser, clearUser, updateUser } = userSlice.actions;
 export default userSlice.reducer;

@@ -58,6 +58,22 @@ const menu: MenuItem[] = [
     ],
   },
   {
+    icon: "Key",
+    title: "Tasks and KPIs",
+    subMenu: [
+      {
+        icon: "DatabaseBackup",
+        pathname: "/generate-report",
+        title: "Create Task",
+      },
+      {
+        icon: "Eye",
+        pathname: "/view-report",
+        title: "View Reports",
+      },
+    ],
+  },
+  {
     icon: "Database",
     title: "Reports",
     subMenu: [
@@ -77,6 +93,22 @@ const menu: MenuItem[] = [
     icon: "Bell",
     pathname: "/notification",
     title: "Notifications",
+  },
+  {
+    icon: "Calendar",
+    title: "Assignment",
+    subMenu: [
+      {
+        icon: "Calendar",
+        pathname: "/assignments",
+        title: "Location Assignment",
+      },
+      {
+        icon: "Calendar",
+        pathname: "/task-assignment",
+        title: "Task Assignment",
+      },
+    ],
   },
   "divider",
   {

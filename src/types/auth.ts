@@ -13,16 +13,26 @@ export interface User {
   role: string;
   status: 'ACTIVE' | 'BLOCKED';
   image?: string;
-  assignment?: {
-    endDate: string;
-  };
   socialMedia?: {
     facebook?: string;
     twitter?: string;
     linkedin?: string;
   };
   bio?: string;
-  skills?: string;
-  education?: string;
+  currentSite?: {
+    name?: string;
+    location?: string;
+    country?: string;
+    image?: string;
+  };
+  assignments?: {
+    site?: {
+      name?: string;
+      location?: string;
+      country?: string;
+    };
+    startDate?: string;
+    endDate?: string;
+  }[];
 }
   

@@ -69,7 +69,6 @@ function Main() {
   };
 
   const viewAssignment = (assignment: Assignment) => {
-    console.log("Viewing Assignment:", assignment);
     // Make sure all required data is present
     if (!assignment.employee || !assignment.site) {
       console.error("Missing assignment data:", assignment);

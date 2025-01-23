@@ -139,6 +139,7 @@ function Main() {
             </Tab>
           </Tab.List>
         </div>
+
         {/* END: Profile Info */}
         <Tab.Panels className="mt-5">
           <Tab.Panel>
@@ -149,14 +150,19 @@ function Main() {
                     <h2 className="font-medium text-base mr-auto">Assignment History</h2>
                   </div>
                   <div className="p-5">
-                    {user.assignments && user.assignments.length > 0 ? (
+                    {user?.assignments && user?.assignments.length > 0 ? (
                       <div className="grid grid-cols-1 gap-4">
-                        {user.assignments.map((assignment: any, index: number) => (
+                        {user?.assignments?.map((assignment: any, index: number) => (
                           <div key={index} 
                             className="bg-slate-50 rounded-lg p-4 hover:shadow-md transition-shadow">
                             <div className="flex justify-between items-start">
                               <div>
-                                <div className="font-medium text-base">{assignment.site?.name || 'Unknown Site'}</div>
+                                <div className="font-medium text-base">
+                                  {`${assignment.site?.location} - 
+                                  ${assignment.site?.name} - 
+                                  ${assignment.site?.country}` || 
+                                  'Unknown Site'}
+                                  </div>
                                 <div className="text-slate-500 mt-1">
                                   {new Date(assignment.startDate).toLocaleDateString()} - 
                                   {assignment.endDate ? new Date(assignment.endDate).toLocaleDateString() : 'Present'}

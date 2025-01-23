@@ -5,6 +5,9 @@ import { Assignment } from "@/types/assignment";
 import { LoadingTag } from "@/components/Loading";
 import { useState, useEffect } from "react";
 import api from "@/api/axios";
+import { useSelector } from "react-redux";
+import { RootState } from "@/stores/store";
+import NotifyMessage from "@/components/NotifyMessage";
 
 const calculateProgress = (startDate: string | Date, endDate: string | Date) => {
   const start = new Date(startDate).getTime();
@@ -47,7 +50,7 @@ const getAssignmentStatus = (startDate: string | Date, endDate: string | Date) =
   return { label: 'In Progress', color: 'primary' };
 };
 
-function Main() {
+const Main = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [assignment, setAssignment] = useState<Assignment | null>(
@@ -55,9 +58,15 @@ function Main() {
   );
   const [loading, setLoading] = useState(false);
   const { id } = useParams<{ id: string }>();
+  const user = useSelector((state: RootState) => state.auth.user);
   const [timeRemaining, setTimeRemaining] = useState(() => 
     assignment ? calculateTimeRemaining(assignment.endDate) : { days: 0, hours: 0, minutes: 0 }
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [selectedTask, setSelectedTask] = useState<string | null>(null);
+  const [completionDate, setCompletionDate] = useState<string>('');
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     const fetchAssignment = async () => {
@@ -66,6 +75,7 @@ function Main() {
           setLoading(true);
           const { data } = await api.get(`/assignments/${id}`);
           setAssignment(data);
+          console.log("Assignment Data:", data);
         } catch (error) {
           console.error("Error fetching assignment:", error);
         } finally {
@@ -76,6 +86,19 @@ function Main() {
 
     fetchAssignment();
   }, [id, assignment]);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const { data } = await api.get('/tasks');
+        setTasks(data);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   useEffect(() => {
     if (!assignment) return;
@@ -107,8 +130,37 @@ function Main() {
     );
   }
 
+  const handleBack = () => {
+    try {
+      if (user?.role === "ADMIN") {
+        navigate('/view-assign');
+      } else {
+        navigate('/assignments');
+      }
+    } catch (error) {
+      console.error("Error navigating back:", error);
+    }
+  };
+
+  const handleSubmitTaskAssignment = async () => {
+    try {
+      await api.put(`/assignments/add-task/${id}`, {
+        taskId: selectedTask,
+        assignmentId: id,
+        isCompleted: false,
+        completionDate,
+      });
+      setNotification({ message: "Task assignment submitted successfully!", type: 'success' });
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error submitting task assignment:", error);
+      setNotification({ message: "Error submitting task assignment.", type: 'error' });
+    }
+  };
+
   return (
     <div className="mt-5 px-4 sm:px-6 lg:px-8">
+      {notification && <NotifyMessage message={notification.message} type={notification.type} />}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div className="mb-4 sm:mb-0">
@@ -118,20 +170,22 @@ function Main() {
         <div className="flex flex-col sm:flex-row gap-2">
           <Button 
             variant="outline-secondary"
-            onClick={() => navigate('/view-assign')}
+            onClick={() => handleBack()}
             className="w-full sm:w-auto"
           >
             <Lucide icon="arrow-left" className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <Button 
-            variant="primary"
-            onClick={() => navigate(`/edit-assignment/${assignment._id}`)}
-            className="w-full sm:w-auto"
-          >
-            <Lucide icon="pen-square" className="w-4 h-4 mr-2" />
-            Edit Assignment
-          </Button>
+          {user?.role === "ADMIN" && (
+            <Button 
+              variant="primary"
+              onClick={() => navigate(`/edit-assignment/${assignment._id}`)}
+              className="w-full sm:w-auto"
+            >
+              <Lucide icon="pen-square" className="w-4 h-4 mr-2" />
+              Edit Assignment
+            </Button>
+          )}
         </div>
       </div>
 
@@ -288,21 +342,68 @@ function Main() {
             })()}
           </div>
 
-          {/* Export/Print Button */}
-          <div className="mt-6 text-center">
-            <Button
-              variant="outline-secondary"
-              onClick={() => window.print()}
-              className="inline-flex items-center"
-            >
-              <Lucide icon="printer" className="w-4 h-4 mr-2" />
-              Print Details
-            </Button>
-          </div>
+          {/* Submit Task Assignment Button */}
+          {user?.role === "ADMIN" && (
+            <div className="flex items-center justify-center flex-row gap-4 mt-6">
+              <Button
+                variant="outline-secondary"
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center"
+              >
+                <Lucide icon="PlusCircle" className="w-4 h-4 mr-2" />
+                Assign Task Assignment
+              </Button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Simple Modal for Task Assignment Submission */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-lg font-bold mb-4">Submit Task Assignment</h2>
+            <div>
+              <label className="block mb-2">Select Task:</label>
+              <select
+                value={selectedTask || ""}
+                onChange={(e) => setSelectedTask(e.target.value)}
+                className="border rounded p-2 w-full"
+                required
+              >
+                <option value="" disabled>Select a task</option>
+                {tasks.map(task => (
+                  <option key={task._id} value={task._id}>
+                    {task.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mt-4">
+              <label className="block mb-2">Completion Date:</label>
+              <input
+                type="date"
+                value={completionDate}
+                onChange={(e) => setCompletionDate(e.target.value)}
+                className="border rounded p-2 w-full"
+                required
+              />
+            </div>
+
+            <div className="flex justify-end mt-4">
+              <Button variant="outline-secondary" onClick={() => setIsModalOpen(false)} className="mr-2">
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handleSubmitTaskAssignment}>
+                Submit
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default Main; 

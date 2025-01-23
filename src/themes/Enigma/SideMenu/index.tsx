@@ -34,7 +34,6 @@ function Main() {
     const baseMenu = nestedMenu(menuStore, location);
     
     if (!user?.role) {
-      console.log("No user role found, showing default menu");
       return baseMenu;
     }
 
@@ -43,17 +42,17 @@ function Main() {
       if (item === "divider") return true;
 
       if (user.role === "ADMIN") {
-        return true;
+        const adminExcludedTitles = ['Assignment', 'Task Assignment'];
+        return !adminExcludedTitles.includes(item.title);
       }
 
       if (user.role === "FIELD-TECHNICIAN" && item instanceof Object) {
         if (item.subMenu) {
-          return item.title === "Sites";
+          return item.title === "Assignment";
         }
 
-        const allowedPaths = ['/', '/sites', '/notification', '/login', '/test'];
+        const allowedPaths = ['/', '/assignments', '/notification', '/login', '/test'];
         const isAllowed = item.pathname ? allowedPaths.includes(item.pathname) : false;
-        console.log(`Menu item ${item.title} allowed:`, isAllowed);
         return isAllowed;
       }
 
@@ -63,7 +62,6 @@ function Main() {
 
   useEffect(() => {
     const menu = sideMenu();
-    console.log("Setting formatted menu:", menu);
     setFormattedMenu(menu);
 
     window.addEventListener("resize", () => {

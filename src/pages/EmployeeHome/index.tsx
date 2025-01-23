@@ -1,17 +1,126 @@
+import { useEffect, useState } from "react";
 import _ from "lodash";
 import clsx from "clsx";
-import fakerData from "@/utils/faker";
 import Button from "@/components/Base/Button";
-import { FormInput } from "@/components/Base/Form";
 import Lucide from "@/components/Base/Lucide";
 import Tippy from "@/components/Base/Tippy";
-import LeafletMap from "@/components/LeafletMap";
-import { Menu, Tab } from "@/components/Base/Headless";
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/stores/store';
+import { User } from "@/types/auth";
+import api from "@/api/axios";
+import imageUrl from '@/assets/images/logoSingle.png';
+import { LoadingTag } from "@/components/Loading";
+import { Assignment } from "@/types/assignment";
+import ShowMessage from "@/components/ShowMessage";
+import { updateUser } from '@/stores/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 function Main() {
   const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [employees, setEmployees] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [hasNewAssignments, setHasNewAssignments] = useState<boolean>(false);
+
+  const token = localStorage.getItem('token');
+
+  const fetchUserData = async () => {
+    try {
+      const { data } = await api.get(`/users/${user?._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      dispatch(updateUser(data));
+      localStorage.setItem('user', JSON.stringify(data));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const approveAssignment = async (assignmentId: string) => {
+    try {
+      await api.put(`/assignments/approve/${assignmentId}`, { 
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      // Remove the approved assignment from local state
+      setAssignments((prevAssignments) => 
+        prevAssignments.filter(assignment => assignment._id !== assignmentId)
+      );
+
+      // Optionally, set hasNewAssignments to false if you want to reset it
+      setHasNewAssignments(false);
+
+      setIsModalOpen(false);
+      ShowMessage({
+        message: 'Assignment approved successfully',
+        isSuccess: true,
+      }); 
+
+      // Fetch updated assignments and user data
+      await fetchAssignments(); // Fetch updated assignments
+      await fetchUserData(); // Fetch updated user data
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const viewAllAssignments = () => {
+    navigate('/assignments');
+  };
+  
+  const fetchAssignments = async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get(`/assignments/assigned-user/${user?._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Raw Assignments API Response:', data);
+      setAssignments(data);
+      localStorage.setItem('assignments', JSON.stringify(data));
+      
+      // Check if there are new assignments
+      if (data.length > 0) {
+        setHasNewAssignments(true);
+      } else {
+        setHasNewAssignments(false);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        setLoading(true);
+        const { data } = await api.get('/users/list', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const filteredEmployees = data.filter((employee: User) => employee.currentSite);
+        setEmployees(filteredEmployees);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchEmployees();
+    fetchAssignments();
+    fetchUserData();
+  }, [token, user?._id, dispatch]);
+  
   return (
     <>
       <div className="relative">
@@ -42,7 +151,7 @@ function Main() {
                 <div className="mt-5 mb-3 2xl:flex">
                   <div className="flex items-center justify-center sm:justify-start">
                     <div className="relative pl-3 text-2xl font-medium leading-6 2xl:text-3xl 2xl:pl-4">
-                      10
+                      {user?.assignments?.length}
                     </div>
                     <a className="ml-4 text-slate-500 2xl:ml-16" href="">
                       <Lucide icon="RefreshCcw" className="w-4 h-4" />
@@ -60,72 +169,57 @@ function Main() {
                   </div>
                 </div>
                 <div className="text-slate-500">Last updated 1 hour ago</div>
-                <Menu className="mt-14 2xl:mt-24 w-44 2xl:w-52">
-                  <Menu.Button
-                    as={Button}
-                    variant="primary"
-                    rounded
-                    className="relative justify-start w-full px-4"
-                  >
-                    Approve New Location
-                    <span className="absolute top-0 bottom-0 right-0 flex items-center justify-center w-8 h-8 my-auto ml-auto mr-1">
-                      <Lucide icon="ChevronDown" className="w-4 h-4" />
+                <Button
+                  variant="primary"
+                  className="mt-4"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Approve Location
+                  {hasNewAssignments && (
+                    <span className="ml-2 text-yellow-400 text-lg font-bold animate-pulse">
+                      New
                     </span>
-                  </Menu.Button>
-                  <Menu.Items
-                    placement="bottom-start"
-                    className="w-44 2xl:w-52"
-                  >
-                    <Menu.Item>
-                      <Lucide icon="FileText" className="w-4 h-4 mr-2" />
-                      Obuase
-                    </Menu.Item>
-                    <Menu.Item>
-                      <Lucide icon="FileText" className="w-4 h-4 mr-2" />
-                      Daman
-                    </Menu.Item>
-                  </Menu.Items>
-                </Menu>
+                  )}
+                </Button>
               </div>
+
+              {/* Employees Location */}
               <div className="col-span-12 md:col-span-8 mt-3">
                 <div className="flex items-center h-10 intro-x">
-                  <h2 className="mr-5 text-lg font-medium truncate">
-                    Employees Location
-                  </h2>
+                  <h2 className="mr-5 text-lg font-medium truncate">Current Location</h2>
                   <a href="" className="ml-auto truncate text-primary">
                     Show More
                   </a>
                 </div>
                 <div className="mt-5 relative before:block before:absolute before:w-px before:h-[85%] before:bg-slate-200 before:dark:bg-darkmode-400 before:ml-5 before:mt-5">
-                  <div className="relative flex items-center mb-3 intro-x">
-                    <div className="before:block before:absolute before:w-20 before:h-px before:bg-slate-200 before:dark:bg-darkmode-400 before:mt-5 before:ml-5">
-                      <div className="flex-none w-10 h-10 overflow-hidden rounded-full image-fit">
-                        <img
-                          alt="Profile"
-                          src={fakerData[9].photos[0]}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex-1 px-5 py-3 ml-4 box zoom-in">
-                      <div className="flex items-center">
-                        <div className="font-medium">
-                          {fakerData[9].users[0].name}
-                        </div>
-                        <div className="ml-auto text-xs text-slate-500">
-                          07:00 PM
+                  {employees.map((employee, index) => (
+                    <div key={index} className="relative flex items-center mb-3 intro-x">
+                      <div className="before:block before:absolute before:w-20 before:h-px before:bg-slate-200 before:dark:bg-darkmode-400 before:mt-5 before:ml-5">
+                        <div className="flex-none w-10 h-10 overflow-hidden rounded-full image-fit">
+                          <img alt="Profile" src={employee.image ? employee.image : imageUrl} />
                         </div>
                       </div>
-                      <div className="mt-1 text-slate-500">
-                        Has changed{" "}
-                        <a className="text-primary" href="">
-                          {fakerData[9].products[0].name}
-                        </a>{" "}
-                        status to complete
+                      <div className="flex-1 px-5 py-3 ml-4 box zoom-in">
+                        <div className="flex items-center">
+                          <div className="font-medium">{employee.firstName} {employee.lastName}</div>
+                          <div className="ml-auto text-xs text-slate-500">{employee.currentSite?.country}</div>
+                          <div className="w-10 h-10 ml-1 overflow-hidden rounded-full image-fit">
+                          <img alt="Profile" src={employee.currentSite?.image ? employee.currentSite.image : imageUrl} />
+                        </div>
+                        </div>
+                        <div className="mt-1 text-slate-500">
+                          Currently located at{" "}
+                          <a className="text-primary" href="">
+                            {`${employee.currentSite?.name} - ${employee.currentSite?.location}` || "Unknown"}
+                          </a>{" "}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
+
+
             </div>
           </div>
         </div>
@@ -144,15 +238,15 @@ function Main() {
                         <Lucide icon="AlertCircle" className="w-4 h-4 ml-1.5" />
                       </Tippy>
                     </div>
-                    <div className="text-white relative text-2xl font-medium leading-5 pl-4 mt-3.5">
-                      BENIN
+                    <div className="text-white relative text-2xl font-medium leading-5 pl-4 mt-3.5 text-bold">
+                    {user?.currentSite?.name || "Awaiting"}
                     </div>
                   </div>
                   <a
                     className="flex items-center justify-center w-12 h-12 text-white bg-white rounded-full dark:bg-darkmode-300 bg-opacity-20 hover:bg-opacity-30"
                     href=""
                   >
-                    <Lucide icon="Plus" className="w-6 h-6" />
+                    <Lucide icon="RefreshCcw" className="w-4 h-4" />
                   </a>
                 </div>
               </div>
@@ -166,7 +260,7 @@ function Main() {
                   <div className="top-0 px-5 pt-5 pb-6 xl:sticky">
                     <div className="flex items-center">
                       <div className="mr-5 text-lg font-medium truncate">
-                        Upcoming Tasks
+                        Tasks
                       </div>
                       <a
                         href=""
@@ -178,7 +272,7 @@ function Main() {
                     </div>
                   </div>
 
-                  <div className="px-5 pb-5">
+                  <div className="px-5 pb-5 relative">
                     <div className="grid grid-cols-12 gap-y-6">
                       <div className="col-span-12">
                         <div className="text-slate-500">Pending Approvals</div>
@@ -200,7 +294,8 @@ function Main() {
                       
                       <Button
                         variant="outline-secondary"
-                        className="relative justify-start col-span-12 mb-2 border-dashed border-slate-300 dark:border-darkmode-300"
+                        className={`relative justify-start col-span-12 mb-2 border-dashed border-slate-300 dark:border-darkmode-300 ${hasNewAssignments ? 'animate-glow' : ''}`}
+                        onClick={viewAllAssignments}
                       >
                         <span className="mr-5 truncate">
                           View All Tasks
@@ -217,42 +312,50 @@ function Main() {
           </div>
         </div>
       </div>
-      <div
-        className={clsx([
-          "z-40 grid grid-cols-12 gap-6 -mb-10 -mx-[16px] md:-mx-[22px] relative px-[22px] min-h-[400px] xl:-mt-5 2xl:-mt-8 2xl:z-10",
-          "before:content-[''] before:rounded-t-[30px] xl:before:rounded-t-[30px] before:rounded-b-[30px] xl:before:shadow-[0px_3px_20px_#0000000b] before:w-full before:h-full before:bg-slate-100 before:absolute before:top-0 before:left-0 before:right-0 before:dark:bg-darkmode-700",
-        ])}
-      >
-        <div className="relative col-span-12 2xl:col-span-9">
-          <div className="gap-6">
-            <div className="col-span-12 mt-6 xl:col-span-8">
-              <div className="items-center block h-10 intro-y sm:flex">
-                <h2 className="mr-5 text-lg font-medium truncate">
-                  Employees Location
-                </h2>
-                <div className="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
-                  <Lucide
-                    icon="MapPin"
-                    className="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
-                  />
-                  <FormInput
-                    type="text"
-                    className="pl-10 sm:w-56 !box"
-                    placeholder="Filter by city"
-                  />
-                </div>
-              </div>
-              <div className="p-5 mt-12 intro-y box sm:mt-5">
-                <div>
-                  250 Official Sites in 21 countries, click the marker to see
-                  location details.
-                </div>
-                <LeafletMap className="h-[310px] mt-5 rounded-md bg-slate-200" />
-              </div>
+      
+      {/* Modal for Assignments */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4">
+            <h2 className="text-lg font-semibold text-gray-800">Approve Assignments</h2>
+            <div className="mt-4">
+              {assignments.length > 0 ? (
+                assignments.map((assignment) => (
+                  <div key={assignment._id} className="flex items-center mb-2 p-2 border-b border-gray-200">
+                    <Lucide icon="FileText" className="w-5 h-5 text-gray-600 mr-2" />
+                    <span className="text-gray-700">{assignment.site.name}</span>
+                    <Button
+                      variant="primary"
+                      className="ml-auto"
+                      onClick={() => approveAssignment(assignment._id)}
+                    >
+                      Approve
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500">No assignments available.</p>
+              )}
+            </div>
+            <div className="flex justify-between mt-4">
+              <Button
+                variant="secondary"
+                className="w-full mr-2"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Close
+              </Button>
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={() => viewAllAssignments()}
+              >
+                View All Assignments
+              </Button>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

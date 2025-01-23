@@ -8,4 +8,6 @@ export interface Assignment {
   startDate: Date | string;
   endDate: Date | string;
   status: 'ACTIVE' | 'COMPLETED' | 'PENDING';
+  isApproved: boolean;
+  isCompleted: boolean;
 }

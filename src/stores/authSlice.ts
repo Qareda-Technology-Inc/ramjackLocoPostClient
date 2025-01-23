@@ -1,17 +1,16 @@
 // authSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '@/api/axios';
-import { User } from "@/types/auth";
+import { User } from '@/types/auth';
 
 export const login = createAsyncThunk(
   'auth/login',
   async ({ identityNo, password }: { identityNo: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await api.post('users/login', { identityNo, password }); // Adjust the endpoint accordingly
-      return response.data;
+      const response = await api.post('users/login', { identityNo, password });
+      return response.data; // Assumes response contains { user, token }
     } catch (error: any) {
-      // Check if the error has a response and a message
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      const errorMessage = error.response?.data?.message || error.message || 'Login failed';
       return rejectWithValue(errorMessage);
     }
   }
@@ -26,7 +25,7 @@ interface AuthState {
 const initialState: AuthState = {
   loading: false,
   error: null,
-  user: null,
+  user: JSON.parse(localStorage.getItem('user') || 'null'), // Persist user across refreshes
 };
 
 export const authSlice = createSlice({
@@ -37,19 +36,16 @@ export const authSlice = createSlice({
       state.loading = true;
     },
     stopLoading: (state) => {
-        state.loading = false;
+      state.loading = false;
     },
     logout: (state) => {
       state.user = null;
-      // Clear both token and user
       localStorage.removeItem('token');
       localStorage.removeItem('user');
     },
     setUser: (state, action) => {
       state.user = action.payload;
-      // Store user in localStorage
       localStorage.setItem('user', JSON.stringify(action.payload));
-      console.log("User set in Redux and localStorage:", action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -61,10 +57,8 @@ export const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        // Store both token and user
         localStorage.setItem('token', action.payload.token);
         localStorage.setItem('user', JSON.stringify(action.payload.user));
-        console.log("Login fulfilled, storing user data");
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;

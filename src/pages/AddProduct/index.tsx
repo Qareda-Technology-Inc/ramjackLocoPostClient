@@ -13,7 +13,6 @@ import {
   FormSwitch,
 } from "@/components/Base/Form";
 import TomSelect from "@/components/Base/TomSelect";
-import { ClassicEditor } from "@/components/Base/Ckeditor";
 import Alert from "@/components/Base/Alert";
 import Lucide from "@/components/Base/Lucide";
 import Tippy from "@/components/Base/Tippy";
@@ -317,10 +316,7 @@ function Main() {
                     </div>
                   </FormLabel>
                   <div className="flex-1 w-full mt-3 xl:mt-0">
-                    <ClassicEditor
-                      value={editorData}
-                      onChange={setEditorData}
-                    />
+
                     <FormHelp className="text-right">
                       Maximum character 0/2000
                     </FormHelp>

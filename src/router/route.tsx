@@ -24,6 +24,8 @@ import Profile from "@/pages/Profile";
 import EditProfile from "@/pages/EditProfile";
 import ChangePassword from"@/pages/ChangePassword";
 import ResetPassword from "@/pages/ResetPassword";
+import ViewAllAssignments from "@/pages/viewAllAssignment";
+import KPIForm from "@/pages/KPIForm";
 
 function Router() {
   const routes = [
@@ -106,7 +108,11 @@ function Router() {
         },
         {
           path: "view-assignment/:id",
-          element: <PrivateRoute element={<ViewAssignment />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<ViewAssignment />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "PRESIDENT"]} />,
+        },
+        {
+          path: "assignments",
+          element: <PrivateRoute element={<ViewAllAssignments />} allowedRoles={["FIELD-TECHNICIAN", "PRESIDENT"]} />,
         },
         {
           path: "/profile/:userId",
@@ -118,7 +124,7 @@ function Router() {
         },
         {
           path: "/test",
-          element: <PrivateRoute element={<Test />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "PRESIDENT"]} />,
+          element: <PrivateRoute element={<KPIForm />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "PRESIDENT"]} />,
         },
       ],
     },

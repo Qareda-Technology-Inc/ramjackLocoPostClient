@@ -55,6 +55,50 @@ function Main() {
     }
   };
 
+  // const handleLogin = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+    
+  //   if (!identityNo || !password) {
+  //     showNotification('error', 'Please enter both ID and password');
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+  //     const response = await api.post('/users/login', {
+  //       identityNo,
+  //       password
+  //     });
+
+  //     if (response.data.success) {
+  //       setMessage(""); // Clear previous messages
+  //       setIsSuccess(true); // Set to success for ShowMessage
+  //       showNotification('success', 'Login successful');
+        
+  //       // Store user data and token
+  //       localStorage.setItem('token', response.data.token);
+  //       localStorage.setItem('user', JSON.stringify(response.data.user));
+        
+  //       // Check for first login
+  //       if (response.data.user.isFirstLogin) {
+  //         navigate('/change-password');
+  //       } else {
+  //         navigate('/');
+  //       }
+  //     }
+  //   } catch (error) {
+  //     let errorMessage = 'An error occurred during login';
+      
+  //     if (axios.isAxiosError(error)) {
+  //       errorMessage = error.response?.data?.message || errorMessage;
+  //     }
+      
+  //     showNotification('error', errorMessage);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -62,41 +106,30 @@ function Main() {
       showNotification('error', 'Please enter both ID and password');
       return;
     }
-
+  
     try {
       setLoading(true);
-      const response = await api.post('/users/login', {
-        identityNo,
-        password
-      });
-
-      if (response.data.success) {
+      const resultAction = await dispatch(login({ identityNo, password }));
+      const response = unwrapResult(resultAction);
+  
+      if (response.success) {
         showNotification('success', 'Login successful');
-        
-        // Store user data and token
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        
-        // Check for first login
-        if (response.data.user.isFirstLogin) {
+        if (response.user.isFirstLogin) {
           navigate('/change-password');
         } else {
           navigate('/');
         }
+      } else {
+        showNotification('error', response.message || 'Login failed');
       }
-    } catch (error) {
-      let errorMessage = 'An error occurred during login';
-      
-      if (axios.isAxiosError(error)) {
-        errorMessage = error.response?.data?.message || errorMessage;
-      }
-      
-      showNotification('error', errorMessage);
+    } catch (error: any) {
+      showNotification('error', error.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
+  
   useEffect(() => {
     const storedRememberMe = localStorage.getItem('rememberMe');
     setRememberMe(storedRememberMe === 'true'); // Parse to boolean

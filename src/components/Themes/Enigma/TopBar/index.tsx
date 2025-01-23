@@ -11,6 +11,7 @@ import { logout } from "@/stores/authSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AppDispatch, RootState } from "@/stores/store";
+import api from "@/api/axios";
 
 function Main(props: { layout?: "side-menu" }) {
   const navigate = useNavigate();
@@ -25,10 +26,20 @@ function Main(props: { layout?: "side-menu" }) {
   const hideSearchDropdown = () => {
     setSearchDropdown(false);
   };
+  const token = localStorage.getItem('token');
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await api.post('/users/logout', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      dispatch(logout());
+      navigate("/login");
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   }
 
   const handleViewProfile = () => {

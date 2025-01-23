@@ -1,3 +1,4 @@
+import React from 'react';
 import "@/assets/css/vendors/full-calendar.css";
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -5,8 +6,21 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import { CalendarOptions } from "@fullcalendar/core";
+import { Assignment } from '@/types/assignment';
 
-function Main() {
+interface CalendarProps {
+  assignments: Assignment[];
+}
+
+function Main({ assignments }: CalendarProps) {
+  const events = assignments.map(assignment => ({
+    title: assignment.site.name,
+    start: new Date(assignment.startDate).toISOString(),
+    end: new Date(assignment.endDate).toISOString(),
+  }));
+
+  console.log('Calendar events:', events); // Log the events array
+
   const options: CalendarOptions = {
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
     droppable: true,
@@ -15,37 +29,11 @@ function Main() {
       center: "title",
       right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
     },
-    initialDate: "2021-01-12",
+    initialDate: new Date().toISOString().split('T')[0], // Set to today's date
     navLinks: true,
     editable: true,
     dayMaxEvents: true,
-    events: [
-      {
-        title: "Vue Vixens Day",
-        start: "2021-01-05",
-        end: "2021-01-08",
-      },
-      {
-        title: "VueConfUS",
-        start: "2021-01-11",
-        end: "2021-01-15",
-      },
-      {
-        title: "VueJS Amsterdam",
-        start: "2021-01-17",
-        end: "2021-01-21",
-      },
-      {
-        title: "Vue Fes Japan 2019",
-        start: "2021-01-21",
-        end: "2021-01-24",
-      },
-      {
-        title: "Laracon 2021",
-        start: "2021-01-24",
-        end: "2021-01-27",
-      },
-    ],
+    events: events, // Use the mapped events
     drop: function (info) {
       if (
         document.querySelectorAll("#checkbox-events").length &&
