@@ -1,5 +1,4 @@
 import React from "react";
-import Alert from "./Base/Alert";
 
 interface ShowMessageProps {
     message: string; // Type for message
@@ -8,9 +7,9 @@ interface ShowMessageProps {
 
 const ShowMessage: React.FC<ShowMessageProps> = ({ message, isSuccess }) => {
     return (
-        <Alert variant={isSuccess ? "success" : "danger"} className="mb-2">
+        <div className="bg-green-500 text-white p-2 rounded-md">
             {message}
-        </Alert>
+        </div>
     );
 };
 

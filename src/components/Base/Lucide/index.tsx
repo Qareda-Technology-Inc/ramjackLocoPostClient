@@ -1,14 +1,16 @@
 import { icons } from "lucide-react";
 import { LucideIcon } from 'lucide-react';
+import React from 'react';
 
-interface LucideProps {
+export type LucideProps = {
   icon: keyof typeof icons;
+  onClick?: () => void;
   className?: string;
-}
+};
 
-function Lucide({ icon, className }: LucideProps) {
+function Lucide({ icon, onClick, className }: LucideProps) {
   const Icon: LucideIcon = icons[icon];
-  return Icon ? <Icon className={className} /> : null;
+  return Icon ? <Icon className={className} onClick={onClick} /> : null;
 }
 
 export default Lucide;

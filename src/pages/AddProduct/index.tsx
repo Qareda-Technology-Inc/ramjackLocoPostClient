@@ -13,7 +13,6 @@ import {
   FormSwitch,
 } from "@/components/Base/Form";
 import TomSelect from "@/components/Base/TomSelect";
-import Alert from "@/components/Base/Alert";
 import Lucide from "@/components/Base/Lucide";
 import Tippy from "@/components/Base/Tippy";
 import Table from "@/components/Base/Table";
@@ -28,42 +27,6 @@ function Main() {
         <h2 className="mr-auto text-lg font-medium">Add Product</h2>
       </div>
       <div className="grid grid-cols-11 pb-20 mt-5 gap-x-6">
-        {/* BEGIN: Notification */}
-        <Alert
-          variant="primary"
-          dismissible
-          className="col-span-11 mb-6 intro-y box dark:border-darkmode-600"
-        >
-          {({ dismiss }) => (
-            <>
-              <div className="flex items-center">
-                <span>
-                  <Lucide icon="Info" className="w-4 h-4 mr-2" />
-                </span>
-                <span>
-                  Starting May 10, 2021, there will be changes to the Terms &
-                  Conditions regarding the number of products that may be added
-                  by the Seller.
-                  <a
-                    href="https://themeforest.net/item/midone-jquery-tailwindcss-html-admin-template/26366820"
-                    className="ml-1 underline"
-                    target="blank"
-                  >
-                    Learn More
-                  </a>
-                </span>
-                <Alert.DismissButton
-                  className="text-white"
-                  onClick={dismiss}
-                  aria-label="Close"
-                >
-                  <Lucide icon="X" className="w-4 h-4" />
-                </Alert.DismissButton>
-              </div>
-            </>
-          )}
-        </Alert>
-        {/* BEGIN: Notification */}
         <div className="col-span-11 intro-y 2xl:col-span-9">
           {/* BEGIN: Uplaod Product */}
           <div className="p-5 intro-y box">
@@ -1191,38 +1154,6 @@ function Main() {
                         placeholder="Stock"
                       />
                     </div>
-                    <Alert
-                      variant="outline-warning"
-                      dismissible
-                      className="mt-5 bg-warning/20 dark:bg-darkmode-400 dark:border-darkmode-400"
-                    >
-                      {({ dismiss }) => (
-                        <>
-                          <div className="flex items-center">
-                            <span>
-                              <Lucide
-                                icon="AlertTriangle"
-                                className="w-6 h-6 mr-3"
-                              />
-                            </span>
-                            <span className="text-slate-800 dark:text-slate-500">
-                              Pay close attention to the weight of the product
-                              so that there is no difference in data with the
-                              shipping courier.{" "}
-                              <a className="font-medium text-primary" href="">
-                                Learn More
-                              </a>
-                            </span>
-                            <Alert.DismissButton
-                              className="btn-close dark:text-white"
-                              onClick={dismiss}
-                            >
-                              <Lucide icon="X" className="w-4 h-4" />
-                            </Alert.DismissButton>
-                          </div>
-                        </>
-                      )}
-                    </Alert>
                   </div>
                 </FormInline>
                 <FormInline className="flex-col items-start pt-5 mt-5 xl:flex-row first:mt-0 first:pt-0">

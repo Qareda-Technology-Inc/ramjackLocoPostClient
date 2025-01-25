@@ -12,6 +12,7 @@ import Lucide from "@/components/Base/Lucide";
 import logoUrl from "@/assets/images/logoSingle.png";
 import clsx from "clsx";
 import SimpleBar from "simplebar";
+import { icons } from "lucide-react";
 
 function Main() {
   const navigate = useNavigate();
@@ -106,7 +107,7 @@ function Main() {
                     }}
                   >
                     <div className="menu__icon">
-                      <Lucide icon={menu.icon} />
+                      <Lucide icon={menu.icon as keyof typeof icons} />
                     </div>
                     <div className="menu__title">
                       {menu.title}
@@ -149,7 +150,7 @@ function Main() {
                               }}
                             >
                               <div className="menu__icon">
-                                <Lucide icon={subMenu.icon} />
+                                <Lucide icon={subMenu.icon as keyof typeof icons} />
                               </div>
                               <div className="menu__title">
                                 {subMenu.title}
@@ -207,7 +208,7 @@ function Main() {
                                           }}
                                         >
                                           <div className="menu__icon">
-                                            <Lucide icon={lastSubMenu.icon} />
+                                            <Lucide icon={lastSubMenu.icon as keyof typeof icons} />
                                           </div>
                                           <div className="menu__title">
                                             {lastSubMenu.title}
