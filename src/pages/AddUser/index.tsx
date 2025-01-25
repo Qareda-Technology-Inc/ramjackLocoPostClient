@@ -49,10 +49,10 @@ function Main() {
 
   const roles = [
     { value: "", label: "Select Role" },
-    { value: "PRESIDENT", label: "Manager" },
+    { value: "SITE-REP", label: "Site Representative" },
     { value: "FIELD-ENGINEER", label: "Field Engineer" },
     { value: "FIELD-TECHNICIAN", label: "Field Technician" },
-    { value: "ADMIN", label: "Admin" },
+    { value: "MANAGER", label: "Admin" },
   ];
 
   const previewFiles = (file: any) => {

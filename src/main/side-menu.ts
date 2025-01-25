@@ -63,7 +63,7 @@ const menu: MenuItem[] = [
     subMenu: [
       {
         icon: "DatabaseBackup",
-        pathname: "/generate-report",
+        pathname: "/tasks",
         title: "Create Task",
       },
       {
@@ -127,7 +127,6 @@ const menu: MenuItem[] = [
       },
     ],
   },
-  "divider",
   {
     icon: "LogOut",
     pathname: "/login",

@@ -35,96 +35,100 @@ function Router() {
       children: [
         {
           path: "/",
-          element: <PrivateRoute element={<Dashboard />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN"]} />,
+          element: <PrivateRoute element={<Dashboard />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER"]} />,
         },
         {
           path: "employees",
-          element: <PrivateRoute element={<Employees />} allowedRoles={["ADMIN", "PRESIDENT"]} />,
+          element: <PrivateRoute element={<Employees />} allowedRoles={["ADMIN", "PRESIDENT", "MANAGER"]} />,
         },
         {
           path: "view-employee/:id",
-          element: <PrivateRoute element={<ViewEmployee />} allowedRoles={["ADMIN", "PRESIDENT"]} />,
+          element: <PrivateRoute element={<ViewEmployee />} allowedRoles={["ADMIN", "PRESIDENT", "MANAGER"]} />,
         },
         {
           path: "edit-employee/:id",
-          element: <PrivateRoute element={<EditEmployee />} allowedRoles={["ADMIN", "PRESIDENT"]} />,
+          element: <PrivateRoute element={<EditEmployee />} allowedRoles={["ADMIN", "PRESIDENT", "MANAGER"]} />,
         },
         {
           path: "add-employee",
-          element: <PrivateRoute element={<AddUser />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<AddUser />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
           path: "sites",
-          element: <PrivateRoute element={<Sites />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN"]} />,
+          element: <PrivateRoute element={<Sites />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER"]} />,
         },
         {
           path: "add-site",
-          element: <PrivateRoute element={<AddSite />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<AddSite />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
           path: "view-site/:id",
-          element: <PrivateRoute element={<ViewSite />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<ViewSite />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
 
         {
           path: "edit-site/:id",
-          element: <PrivateRoute element={<EditSite />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<EditSite />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
           path: "view-assign",
-          element: <PrivateRoute element={<Assignments />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignments />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
           path: "assign-employee",
-          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
           path: "edit-assignment/:id",
-          element: <PrivateRoute element={<EditAssignment />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<EditAssignment />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
           path: "generate-report",
-          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
           path: "view-report",
-          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
           path: "notification",
-          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
           path: "systems-settings",
-          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
           path: "user-permissions",
-          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN"]} />,
+          element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
           path: "approve",
-          element: <PrivateRoute element={<EmployeeHome />} allowedRoles={["FIELD-TECHNICIAN", "PRESIDENT"]} />, 
+          element: <PrivateRoute element={<EmployeeHome />} allowedRoles={["FIELD-TECHNICIAN", "FIELD-ENGINEERS", "SITE-REPS"]} />, 
         },
         {
           path: "view-assignment/:id",
-          element: <PrivateRoute element={<ViewAssignment />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "PRESIDENT"]} />,
+          element: <PrivateRoute element={<ViewAssignment />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REPS"]} />,
         },
         {
           path: "assignments",
-          element: <PrivateRoute element={<ViewAllAssignments />} allowedRoles={["FIELD-TECHNICIAN", "PRESIDENT"]} />,
+          element: <PrivateRoute element={<ViewAllAssignments />} allowedRoles={["FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REPS"]} />,
         },
         {
           path: "/profile/:userId",
-          element: <PrivateRoute element={<Profile />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "PRESIDENT"]} />,
+          element: <PrivateRoute element={<Profile />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REPS"]} />,
         },
         {
           path: "/edit-profile/:userId",
-          element: <PrivateRoute element={<EditProfile />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "PRESIDENT"]} />,
+          element: <PrivateRoute element={<EditProfile />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REPS"]} />,
         },
         {
           path: "/test",
-          element: <PrivateRoute element={<KPIForm />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "PRESIDENT"]} />,
+          element: <PrivateRoute element={<KPIForm />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REPS"]} />,
+        },
+        {
+          path: "/tasks",
+          element: <PrivateRoute element={<KPIForm />} allowedRoles={["ADMIN", "MANAGER", "SITE-REPS"]} />,
         },
       ],
     },

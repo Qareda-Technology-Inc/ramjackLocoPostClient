@@ -7,7 +7,7 @@ const Dashboard = () => {
   const user = useSelector((state: RootState) => state.auth.user);
 
   // Render different dashboard based on role
-  if (user?.role === "ADMIN") {
+  if (user?.role === "ADMIN" || user?.role === "MANAGER") {
     return <AdminDashboard />;
   }
 

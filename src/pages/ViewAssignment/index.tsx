@@ -132,7 +132,7 @@ const Main = () => {
 
   const handleBack = () => {
     try {
-      if (user?.role === "ADMIN") {
+      if (user?.role === "ADMIN" || user?.role === "MANAGER") {
         navigate('/view-assign');
       } else {
         navigate('/assignments');

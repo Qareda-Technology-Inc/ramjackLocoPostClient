@@ -39,12 +39,22 @@ function Main() {
         return !adminExcludedTitles.includes(item.title);
       }
 
-      if (user.role === "FIELD-TECHNICIAN" && item instanceof Object) {
+      if (user.role === "FIELD-TECHNICIAN" || user.role === "FIELD-TECHNICIAN" && item instanceof Object) {
         if (item.subMenu) {
           return item.title === "Assignment";
         }
 
-        const allowedPaths = ['/', '/assignments', '/notification', '/login', '/test'];
+        const allowedPaths = ['/', '/assignments', '/notification',];
+        const isAllowed = item.pathname ? allowedPaths.includes(item.pathname) : false;
+        return isAllowed;
+      }
+
+      if (user.role === "MANAGER" || user.role === "SITE-REP" && item instanceof Object) {
+        if (item.subMenu) {
+          return item.title === "Assignments" || item.title === "Sites" || item.title === "Employees" || item.title === "Tasks and KPIs";
+        }
+
+        const allowedPaths = ['/', '/assignments', '/notification'];
         const isAllowed = item.pathname ? allowedPaths.includes(item.pathname) : false;
         return isAllowed;
       }

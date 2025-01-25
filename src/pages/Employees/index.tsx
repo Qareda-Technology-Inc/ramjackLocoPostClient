@@ -11,6 +11,10 @@ import { useNavigate } from "react-router-dom";
 import { LoadingTag } from "@/components/Loading";
 import { Menu } from "@/components/Base/Headless";
 
+const truncateName = (name: string, maxLength: number) => {
+  return name.length > maxLength ? name.substring(0, maxLength) + '...' : name;
+};
+
 function Main() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
@@ -127,16 +131,16 @@ function Main() {
                             src={user.image ? user.image : imageUrl}
                           />
                         </div>
-                        <div className="mt-3 text-center lg:ml-2 lg:mr-auto lg:text-left lg:mt-0">
-                          <a href="#" className="text-lg font-bold" onClick={() => viewEmployee(user)}>
-                            {user.firstName} {user.lastName}
+                        <div className="mt-0 text-center lg:ml-2 lg:mr-auto lg:text-left lg:mt-0">
+                          <a href="#" className="text-lg font-bold truncate" onClick={() => viewEmployee(user)}>
+                            {truncateName(`${user.firstName} ${user.lastName}`, 13)}
                           </a>
                           <div className="text-slate-500 text-xs mt-0.5">
-                            {user.position}
+                            {truncateName(user.position, 15)}
                           </div>
                         </div>
                         <div className="flex mt-3 lg:ml-0 lg:justify-end lg:mt-0">
-                          <div className="flex -ml-2">
+                          <div className="flex sm:flex-col -ml-2">
                             <Tippy content="Facebook">
                               <a
                                 href="#"
