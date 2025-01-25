@@ -14,6 +14,7 @@ import { Assignment } from "@/types/assignment";
 import ShowMessage from "@/components/ShowMessage";
 import { updateUser } from '@/stores/userSlice';
 import { useNavigate } from 'react-router-dom';
+import { Task, Tasks } from "@/types/task";
 
 function Main() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -21,9 +22,14 @@ function Main() {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [approvedAssignments, setApproved] = useState<Assignment[]>([]);
+  const [tasks, setTask] = useState<Assignment[]>([]);
+  const [countAssignments, setCountAssignments] = useState<number>(0);
+  const [overallAssignment, setOverallTotalAssignment] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [hasNewAssignments, setHasNewAssignments] = useState<boolean>(false);
+  const [isTasksModalOpen, setIsTasksModalOpen] = useState<boolean>(false);
+  const [modalTasks, setModalTasks] = useState<Task[]>([]);
 
   const token = localStorage.getItem('token');
 
@@ -48,12 +54,14 @@ function Main() {
       });
       
       // Remove the approved assignment from local state
-      setAssignments((prevAssignments) => 
-        prevAssignments.filter(assignment => assignment._id !== assignmentId)
+      setApproved((prevApproved) => 
+        prevApproved.filter(assignment => assignment._id !== assignmentId)
       );
 
-      // Optionally, set hasNewAssignments to false if you want to reset it
-      setHasNewAssignments(false);
+      // Check if there are any remaining approved assignments
+      if (approvedAssignments.length <= 1) {
+        setHasNewAssignments(false); // Reset if no new assignments are left
+      }
 
       setIsModalOpen(false);
       ShowMessage({
@@ -64,16 +72,15 @@ function Main() {
       // Fetch updated assignments and user data
       await fetchAssignments(); // Fetch updated assignments
       await fetchUserData(); // Fetch updated user data
+
+      console.log("Approved Assignments:", approvedAssignments);
+      console.log("Has New Assignments:", hasNewAssignments);
     } catch (error) {
       console.error(error);
     }
   };
-
-  const viewAllAssignments = () => {
-    navigate('/assignments');
-  };
   
-  const fetchAssignments = async () => {
+  const fetchAssigned = async () => {
     try {
       setLoading(true);
       const { data } = await api.get(`/assignments/assigned-user/${user?._id}`, {
@@ -81,20 +88,49 @@ function Main() {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('Raw Assignments API Response:', data);
-      setAssignments(data);
-      localStorage.setItem('assignments', JSON.stringify(data));
+      
+      // Get the current date
+      const now = new Date();
+
+      // Filter assignments
+      const unapprovedAssignments = data.filter((assignment: Assignment) => !assignment.isApproved);
+      const siteAssignments = data.filter((assignment: Assignment) => 
+        assignment.site._id === user?.currentSite?._id && 
+        new Date(assignment.startDate) <= now // Check if the start date is in the past or today
+      );
+
+      // Set state for approved and site-specific assignments
+      setApproved(unapprovedAssignments);
+      setTask(siteAssignments);
       
       // Check if there are new assignments
-      if (data.length > 0) {
+      if (unapprovedAssignments.length > 0) {
         setHasNewAssignments(true);
       } else {
         setHasNewAssignments(false);
       }
+      
+      localStorage.setItem('assignments', JSON.stringify(data));
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAssignments = async () => {
+    try {
+      const { data } = await api.get('/assignments/', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const totalAssignments = data.length;
+      const countUserAssignments = user?.assignments?.length || 0;
+      const assignmentPercentile = (countUserAssignments / totalAssignments) * 100;
+      setCountAssignments(assignmentPercentile);
+      setOverallTotalAssignment(totalAssignments);
+    } catch (error) {
+      console.error(error);
     }
   };
   
@@ -117,30 +153,46 @@ function Main() {
     };
   
     fetchEmployees();
-    fetchAssignments();
+    fetchAssigned();
     fetchUserData();
+    fetchAssignments();
   }, [token, user?._id, dispatch]);
   
+  const openTasksModal = () => {
+    setModalTasks(tasks);
+    setIsTasksModalOpen(true);
+  };
+
+  const viewAllAssignments = () => {
+    navigate('/assignments');
+  };
+
+  const totalTasks = tasks.reduce(
+    (total, tasks) => total + tasks.tasks.length,
+    0
+  );
+
   return (
     <>
       <div className="relative">
         <div className="grid grid-cols-12 gap-6">
           <div className="z-20 col-span-12 xl:col-span-9 2xl:col-span-9">
             <div className="mt-6 -mb-6 intro-y">
+              {loading && <LoadingTag />}
             </div>
             <div className="grid grid-cols-12 mb-3 mt-14 sm:gap-10 intro-y">
               <div className="relative col-span-12 py-6 text-center sm:col-span-6 md:col-span-4 sm:pl-5 md:pl-0 lg:pl-5 sm:text-left">
                 <div className="-mb-1 text-sm font-medium 2xl:text-base">
                   Hi {user?.firstName} {user?.lastName},{" "}
                   <span className="font-normal text-slate-600 dark:text-slate-300">
-                    welcome back!
+                    Welcome Back!
                   </span>
                 </div>
                 <div className="flex items-center justify-center text-base leading-3 2xl:text-lg sm:justify-start text-slate-600 dark:text-slate-300 mt-14 2xl:mt-24">
                   My Total Assignments
                   <Tippy
                     as="div"
-                    content="Your total yearly assignments"
+                    content="Your total assignments"
                   >
                     <Lucide
                       icon="AlertCircle"
@@ -161,10 +213,16 @@ function Main() {
                     <Tippy
                       as="div"
                       className="inline-flex items-center px-2 py-1 text-xs font-medium text-white rounded-full cursor-pointer bg-success 2xl:text-sm 2xl:p-0 2xl:text-success 2xl:bg-transparent 2xl:flex 2xl:justify-center"
-                      content="49% Higher than last month"
+                      content={`${countAssignments.toFixed(2)}% Site assigned out of ${overallAssignment} Assignments`}
                     >
-                      49%
+                      {countAssignments 
+                        ? `${countAssignments.toFixed(2)}%`
+                        : '0%'}
+                      {countAssignments > 50 ? (
                       <Lucide icon="ChevronUp" className="w-4 h-4 ml-0.5" />
+                      ) : (
+                        <Lucide icon="ChevronDown" className="w-4 h-4 ml-0.5" />
+                      )}
                     </Tippy>
                   </div>
                 </div>
@@ -186,43 +244,57 @@ function Main() {
               {/* Employees Location */}
               <div className="col-span-12 md:col-span-8 mt-3">
                 <div className="flex items-center h-10 intro-x">
-                  <h2 className="mr-5 text-lg font-medium truncate">Current Location</h2>
+                  <h2 className="mr-5 text-lg font-medium truncate">Employees Location</h2>
                   <a href="" className="ml-auto truncate text-primary">
                     Show More
                   </a>
                 </div>
                 <div className="mt-5 relative before:block before:absolute before:w-px before:h-[85%] before:bg-slate-200 before:dark:bg-darkmode-400 before:ml-5 before:mt-5">
-                  {employees.map((employee, index) => (
-                    <div key={index} className="relative flex items-center mb-3 intro-x">
+                  {employees.length > 0 ? (
+                    employees.map((employee, index) => (
+                      <div key={index} className="relative flex items-center mb-3 intro-x">
+                        <div className="before:block before:absolute before:w-20 before:h-px before:bg-slate-200 before:dark:bg-darkmode-400 before:mt-5 before:ml-5">
+                          <div className="flex-none w-10 h-10 overflow-hidden rounded-full image-fit">
+                            <img alt="Profile" src={employee.image ? employee.image : imageUrl} />
+                          </div>
+                        </div>
+                        <div className="flex-1 px-5 py-3 ml-4 box zoom-in">
+                          <div className="flex items-center">
+                            <div className="font-medium">{employee.firstName} {employee.lastName}</div>
+                            <div className="ml-auto text-xs text-slate-500">{employee.currentSite?.country}</div>
+                            <div className="w-10 h-10 ml-1 overflow-hidden rounded-full image-fit">
+                              <img alt="Profile" src={employee.currentSite?.image ? employee.currentSite.image : imageUrl} />
+                            </div>
+                          </div>
+                          <div className="mt-1 text-slate-500">
+                            Currently located at{" "}
+                            <a className="text-primary" href="">
+                              {`${employee.currentSite?.name} - ${employee.currentSite?.location}` || "Unknown"}
+                            </a>{" "}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex items-center mb-3 intro-x">
                       <div className="before:block before:absolute before:w-20 before:h-px before:bg-slate-200 before:dark:bg-darkmode-400 before:mt-5 before:ml-5">
                         <div className="flex-none w-10 h-10 overflow-hidden rounded-full image-fit">
-                          <img alt="Profile" src={employee.image ? employee.image : imageUrl} />
+                          <img alt="Default" src={imageUrl} />
                         </div>
                       </div>
                       <div className="flex-1 px-5 py-3 ml-4 box zoom-in">
-                        <div className="flex items-center">
-                          <div className="font-medium">{employee.firstName} {employee.lastName}</div>
-                          <div className="ml-auto text-xs text-slate-500">{employee.currentSite?.country}</div>
-                          <div className="w-10 h-10 ml-1 overflow-hidden rounded-full image-fit">
-                          <img alt="Profile" src={employee.currentSite?.image ? employee.currentSite.image : imageUrl} />
-                        </div>
-                        </div>
-                        <div className="mt-1 text-slate-500">
-                          Currently located at{" "}
-                          <a className="text-primary" href="">
-                            {`${employee.currentSite?.name} - ${employee.currentSite?.location}` || "Unknown"}
-                          </a>{" "}
-                        </div>
+                        <div className="font-medium">No employees available.</div>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
-
+              {/* End of Employee Location */}
 
             </div>
           </div>
         </div>
+        {/* My Current Location */}
         <div className="top-0 right-0 z-30 grid w-full h-full grid-cols-12 gap-6 pb-6 -mt-8 xl:absolute xl:mt-0 xl:pb-0 xl:z-auto">
           <div className="z-30 col-span-12 xl:col-span-3 xl:col-start-10 xl:pb-16">
             <div className="flex flex-col h-full">
@@ -256,6 +328,7 @@ function Main() {
                   "before:box before:absolute before:inset-x-3 before:mt-3 before:h-full before:bg-slate-50 before:content-['']",
                 ])}
               >
+                {/* Task Card */}
                 <div className="max-h-full xl:overflow-y-auto box">
                   <div className="top-0 px-5 pt-5 pb-6 xl:sticky">
                     <div className="flex items-center">
@@ -275,19 +348,20 @@ function Main() {
                   <div className="px-5 pb-5 relative">
                     <div className="grid grid-cols-12 gap-y-6">
                       <div className="col-span-12">
-                        <div className="text-slate-500">Pending Approvals</div>
+                        <div className="text-slate-500">Your Tasks</div>
                         <div className="mt-1.5 flex items-center">
-                          <div className="text-lg">5 Tasks</div>
+                          <div className="text-lg">{totalTasks} Tasks</div>
                           <Tippy
                             as="div"
                             className="flex ml-2 text-xs font-medium cursor-pointer text-success"
-                            content="20% Higher than last week"
+                            content={`The Actual KPI target is ${tasks[0]?.tasks[0]?.task?.kpi?.actualValue}% `}
                           >
-                            20%
+                            {tasks[0]?.tasks[0]?.task?.kpi?.targetValue}% 
                             <Lucide
                               icon="ChevronUp"
                               className="w-4 h-4 ml-0.5"
                             />
+                            {tasks[0]?.tasks[0]?.task?.kpi?.targetValue ? `${"Target KPI"}` : "No KPI's"}
                           </Tippy>
                         </div>
                       </div>
@@ -295,10 +369,10 @@ function Main() {
                       <Button
                         variant="outline-secondary"
                         className={`relative justify-start col-span-12 mb-2 border-dashed border-slate-300 dark:border-darkmode-300 ${hasNewAssignments ? 'animate-glow' : ''}`}
-                        onClick={viewAllAssignments}
+                        onClick={openTasksModal}
                       >
                         <span className="mr-5 truncate">
-                          View All Tasks
+                          View Current Tasks
                         </span>
                         <span className="w-8 h-8 absolute flex justify-center items-center right-0 top-0 bottom-0 my-auto ml-auto mr-0.5">
                           <Lucide icon="ArrowRight" className="w-4 h-4" />
@@ -307,6 +381,7 @@ function Main() {
                     </div>
                   </div>
                 </div>
+                {/* End of Task Card */}
               </div>
             </div>
           </div>
@@ -319,8 +394,8 @@ function Main() {
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4">
             <h2 className="text-lg font-semibold text-gray-800">Approve Assignments</h2>
             <div className="mt-4">
-              {assignments.length > 0 ? (
-                assignments.map((assignment) => (
+              {approvedAssignments.length > 0 ? (
+                approvedAssignments.map((assignment) => (
                   <div key={assignment._id} className="flex items-center mb-2 p-2 border-b border-gray-200">
                     <Lucide icon="FileText" className="w-5 h-5 text-gray-600 mr-2" />
                     <span className="text-gray-700">{assignment.site.name}</span>
@@ -356,6 +431,47 @@ function Main() {
           </div>
         </div>
       )}
+      {/* Task Modal */}
+      {isTasksModalOpen && (
+        <div className="pt-10 fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4 my-4">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Your Site Assignments</h2>
+            <div className="mt-4 max-h-96 overflow-y-auto">
+              {tasks.length > 0 ? (
+                tasks.flatMap(assignment => assignment.tasks).map((task) => (
+                  <div key={task._id} className="mb-4 p-4 border border-gray-300 rounded-lg shadow-sm bg-gradient-to-r from-blue-100 to-green-100">
+                    <h3 className="text-md font-bold text-gray-700">Task Identity: {task?.task?.name}</h3>
+                    <p className="text-gray-600">Description: {task?.task?.description}</p>
+                    <p className="text-gray-600">Completion Date: {new Date(task?.completionDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    <div className="mt-2">
+                      <h4 className="text-sm font-semibold text-gray-800">KPI Details:</h4>
+                      <p className="text-gray-600">Description: {task?.task?.kpi?.description}</p>
+                      <p className={`text-md font-bold ${task?.task?.kpi?.targetValue >= task?.task?.kpi?.actualValue ? 'text-green-600' : 'text-red-600'}`}>
+                        Target Value: {task?.task?.kpi?.targetValue}
+                      </p>
+                      <p className={`text-md font-bold ${task?.task?.kpi?.actualValue >= task?.task?.kpi?.targetValue ? 'text-green-600' : 'text-red-600'}`}>
+                        Actual Value: {task?.task?.kpi?.actualValue}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500">No tasks available.</p>
+              )}
+            </div>
+            <div className="flex justify-between mt-4">
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={() => setIsTasksModalOpen(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 }

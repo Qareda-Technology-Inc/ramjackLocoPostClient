@@ -20,6 +20,7 @@ export interface User {
   };
   bio?: string;
   currentSite?: {
+    _id: string;
     name?: string;
     location?: string;
     country?: string;

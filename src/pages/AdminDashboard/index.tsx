@@ -1,12 +1,9 @@
 import _ from "lodash";
 import clsx from "clsx";
-import { useRef, useState, useEffect } from "react";
-import fakerData from "@/utils/faker";
+import { useState, useEffect } from "react";
 import Button from "@/components/Base/Button";
-import { FormInput, FormSelect } from "@/components/Base/Form";
-import { TinySliderElement } from "@/components/Base/TinySlider";
+import { FormInput } from "@/components/Base/Form";
 import Lucide from "@/components/Base/Lucide";
-import Tippy from "@/components/Base/Tippy";
 import Litepicker from "@/components/Base/Litepicker";
 import ReportDonutChart from "@/components/ReportDonutChart";
 import ReportLineChart from "@/components/ReportLineChart";
@@ -24,21 +21,11 @@ function Main() {
   const [employees, setEmployees] = useState<User[]>([]);
   const [sites, setSites] = useState<Site[]>();
   const [assignments, setAssignments] = useState<Assignment[]>();
-  const [approaching, setApproaching] = useState<User[]>([]);
-  const [availableEmployees, setAvailableEmployees] = useState<number>(0);
-  const [historicalData, setHistoricalData] = useState<Array<{year: string, percentage: number}>>([]);
 
   const [salesReportFilter, setSalesReportFilter] = useState<string>();
-  const importantNotesRef = useRef<TinySliderElement>();
-  const prevImportantNotes = () => {
-    importantNotesRef.current?.tns.goTo("prev");
-  };
-  const nextImportantNotes = () => {
-    importantNotesRef.current?.tns.goTo("next");
-  };
 
   useEffect(() => {
-    const fetchEmployees = async () => {
+    const fetchData = async () => {
       try {
         const employeeResponse = await api.get("/users/list", {
           headers: {
@@ -61,53 +48,11 @@ function Main() {
         });
         setAssignments(assignmentResponse.data);
 
-        // Get employees with approaching end dates
-        const approachingResponse = await api.get("/assignments/approaching", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          params: { days: 30 } // Assignments ending in next 30 days
-        });
-        setApproaching(approachingResponse.data);
-
-        // Calculate available employees (those without active assignments)
-        const activeAssignments = assignmentResponse.data.filter(
-          (assignment: Assignment) => assignment.status === 'ACTIVE'
-        );
-        const assignedEmployeeIds = new Set(activeAssignments.map((a: Assignment) => a.employeeId));
-        const availableCount = employeeResponse.data.filter(
-          (emp: User) => !assignedEmployeeIds.has(emp.id)
-        ).length;
-        setAvailableEmployees(availableCount);
-
-        // Calculate historical assignment data
-        if (assignmentResponse.data && assignmentResponse.data.length > 0) {
-          const assignmentsByYear = assignmentResponse.data.reduce((acc: {[key: string]: number}, curr: Assignment) => {
-            const year = new Date(curr.startDate).getFullYear().toString();
-            acc[year] = (acc[year] || 0) + 1;
-            return acc;
-          }, {});
-          
-          const total = Object.values(assignmentsByYear).reduce((a, b) => a + b, 0);
-          const historicalStats = Object.entries(assignmentsByYear)
-            .sort(([yearA], [yearB]) => Number(yearB) - Number(yearA)) // Sort by year descending
-            .map(([year, count]) => ({
-              year,
-              percentage: Math.round((count / total) * 100)
-            }))
-            .slice(0, 3); // Only take the last 3 years
-            
-          setHistoricalData(historicalStats);
-        } else {
-          setHistoricalData([]); // Set empty array if no data
-        }
-
       } catch (error) {
         console.error(error);
-        setHistoricalData([]); // Set empty array on error
       }
     }
-    fetchEmployees();
+    fetchData();
   }, [token])
 
   return (
@@ -218,7 +163,7 @@ function Main() {
                       </div>
                     </div>
                     <div className="mt-6 text-3xl font-medium leading-8">
-                      {availableEmployees}
+                      70
                     </div>
                     <div className="mt-1 text-base text-slate-500">
                       AVAILABLE EMPLOYEE
@@ -318,20 +263,14 @@ function Main() {
                 <ReportDonutChart height={213} />
               </div>
               <div className="mx-auto mt-8 w-52 sm:w-auto">
-                {historicalData.length === 0 ? (
-                  <div className="text-center text-gray-500">No historical data available</div>
-                ) : (
-                  historicalData.map((stat, index) => (
-                    <div className="flex items-center mt-4" key={stat.year}>
-                      <div className={`w-2 h-2 mr-3 rounded-full ${
+                    <div className="flex items-center mt-4">
+                      {/* <div className={`w-2 h-2 mr-3 rounded-full ${
                         index === 0 ? 'bg-primary' : 
                         index === 1 ? 'bg-pending' : 'bg-warning'
-                      }`}></div>
-                      <span className="truncate">{stat.year}</span>
-                      <span className="ml-auto font-medium">{stat.percentage}%</span>
+                      }`}></div> */}
+                      <span className="truncate">test 1</span>
+                      <span className="ml-auto font-medium">percent 1%</span>
                     </div>
-                  ))
-                )}
               </div>
             </div>
           </div>
@@ -375,7 +314,8 @@ function Main() {
                   Assignment Tags
                 </h2>
               </div>
-              <div className="mt-5">
+              {/* Approaching */}
+              {/* <div className="mt-5">
                 {approaching.length === 0 ? (
                   <div className="text-center text-gray-500 py-4">No approaching assignments</div>
                 ) : (
@@ -407,7 +347,8 @@ function Main() {
                 >
                   View More
                 </a>
-              </div>
+              </div> */}
+              {/* Approaching end */}
             </div>
             {/* END: Assignment Tag */}
             {/* BEGIN:Assignment Ending */}

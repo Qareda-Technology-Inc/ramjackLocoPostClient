@@ -23,7 +23,6 @@ const App = () => {
     if (token && storedUser) {
       try {
         const user = JSON.parse(storedUser);
-        console.log("Restoring user session from localStorage");
         dispatch(setUser(user));
       } catch (error) {
         console.error("Error parsing stored user data:", error);

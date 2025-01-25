@@ -146,7 +146,7 @@ function Main(props: { layout?: "side-menu" }) {
             <Menu.Button className="block w-8 h-8 overflow-hidden rounded-full shadow-lg image-fit zoom-in intro-x">
               <img
                 alt="Qaretech Innovative"
-                src={user?.image || logoUrl}
+                src={user?.image ? user?.image : logoUrl}
               />
             </Menu.Button>
             <Menu.Items className="w-56 mt-px relative bg-primary/80 before:block before:absolute before:bg-black before:inset-0 before:rounded-md before:z-[-1] text-white">

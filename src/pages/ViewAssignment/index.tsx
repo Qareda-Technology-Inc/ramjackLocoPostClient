@@ -122,7 +122,7 @@ const Main = () => {
             className="mt-4"
             onClick={() => navigate('/view-assign')}
           >
-            <Lucide icon="arrow-left" className="w-4 h-4 mr-2" />
+            <Lucide icon="ArrowLeft" className="w-4 h-4 mr-2" />
             Back to Assignments
           </Button>
         </div>
@@ -173,7 +173,7 @@ const Main = () => {
             onClick={() => handleBack()}
             className="w-full sm:w-auto"
           >
-            <Lucide icon="arrow-left" className="w-4 h-4 mr-2" />
+            <Lucide icon="ArrowLeft" className="w-4 h-4 mr-2" />
             Back
           </Button>
           {user?.role === "ADMIN" && (
@@ -182,7 +182,7 @@ const Main = () => {
               onClick={() => navigate(`/edit-assignment/${assignment._id}`)}
               className="w-full sm:w-auto"
             >
-              <Lucide icon="pen-square" className="w-4 h-4 mr-2" />
+              <Lucide icon="PenSquare" className="w-4 h-4 mr-2" />
               Edit Assignment
             </Button>
           )}
@@ -195,7 +195,7 @@ const Main = () => {
         <div className="box p-5 bg-white dark:bg-darkmode-600 rounded-lg shadow">
           <div className="flex items-center border-b pb-5 mb-5 border-slate-200/60 dark:border-darkmode-400">
             <div className="w-10 h-10 flex items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Lucide icon="user" className="w-5 h-5" />
+              <Lucide icon="User" className="w-5 h-5" />
             </div>
             <div className="ml-3">
               <h3 className="text-lg font-medium">Employee Information</h3>
@@ -228,7 +228,7 @@ const Main = () => {
         <div className="box p-5 bg-white dark:bg-darkmode-600 rounded-lg shadow">
           <div className="flex items-center border-b pb-5 mb-5 border-slate-200/60 dark:border-darkmode-400">
             <div className="w-10 h-10 flex items-center justify-center rounded-full bg-success/10 text-success">
-              <Lucide icon="map-pin" className="w-5 h-5" />
+              <Lucide icon="MapPin" className="w-5 h-5" />
             </div>
             <div className="ml-3">
               <h3 className="text-lg font-medium">Site Information</h3>
@@ -255,7 +255,7 @@ const Main = () => {
         <div className="lg:col-span-2 box p-5 bg-white dark:bg-darkmode-600 rounded-lg shadow">
           <div className="flex items-center border-b pb-5 mb-5 border-slate-200/60 dark:border-darkmode-400">
             <div className="w-10 h-10 flex items-center justify-center rounded-full bg-warning/10 text-warning">
-              <Lucide icon="calendar" className="w-5 h-5" />
+              <Lucide icon="Calendar" className="w-5 h-5" />
             </div>
             <div className="ml-3">
               <h3 className="text-lg font-medium">Assignment Period</h3>
@@ -335,7 +335,7 @@ const Main = () => {
               const status = getAssignmentStatus(assignment.startDate, assignment.endDate);
               return (
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-${status.color}/10 text-${status.color}`}>
-                  <Lucide icon="check-circle" className="w-4 h-4 mr-2" />
+                  <Lucide icon="CheckCircle" className="w-4 h-4 mr-2" />
                   {status.label}
                 </div>
               );

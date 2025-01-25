@@ -23,12 +23,6 @@ function Main() {
   const menuStore = useAppSelector(selectMenu("side-menu"));
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  useEffect(() => {
-    console.log("Auth State Changed:", {
-      user,
-      role: user?.role
-    });
-  }, [user]);
 
   const sideMenu = () => {
     const baseMenu = nestedMenu(menuStore, location);
@@ -37,7 +31,6 @@ function Main() {
       return baseMenu;
     }
 
-    console.log("Filtering menu for role:", user.role);
     return baseMenu.filter(item => {
       if (item === "divider") return true;
 
