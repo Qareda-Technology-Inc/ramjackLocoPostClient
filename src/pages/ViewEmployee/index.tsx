@@ -50,7 +50,7 @@ function Main() {
               <div className="flex flex-col items-center justify-center mt-4 lg:items-start">
                 <div className="flex items-center truncate sm:whitespace-normal">
                   <Lucide icon="Mail" className="w-4 h-4 mr-2" />
-                  {employee?.employee?.email}
+                  {employee?.employee?.contactInfo.email}
                 </div>
                 <div className="flex items-center mt-3 truncate sm:whitespace-normal">
                   <Lucide icon="Instagram" className="w-4 h-4 mr-2" /> Instagram
