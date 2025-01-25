@@ -159,7 +159,7 @@ function Main() {
   }, [token, user?._id, dispatch]);
   
   const openTasksModal = () => {
-    setModalTasks(tasks);
+    setModalTasks(tasks as any);
     setIsTasksModalOpen(true);
   };
 

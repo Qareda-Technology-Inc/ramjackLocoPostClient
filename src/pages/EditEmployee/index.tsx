@@ -232,7 +232,7 @@ const Main = () => {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={onFileChange}
+                    onChange={onFileChange as any}
                     className="border rounded-md px-4 py-2"
                   />
                   <img src={image || employee.image} alt="" className="rounded-full w-20 h-20"/>

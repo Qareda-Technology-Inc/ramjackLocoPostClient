@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { type Themes } from "@/stores/themeSlice";
-import { icons } from "@/components/Base/Lucide";
+import icons from "@/components/Base/Lucide";
 import sideMenu from "@/main/side-menu";
 
 export interface Menu {

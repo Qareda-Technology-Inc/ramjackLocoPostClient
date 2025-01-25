@@ -55,7 +55,7 @@ function Main() {
       <div className="flex items-center mt-8 intro-y">
         <h2 className="mr-auto text-lg font-medium">Profile</h2>
         <Button variant="primary" onClick={handleEditProfile}>
-          <Lucide icon="Edit" className="w-4 h-4 mr-2" /> Edit Profile
+          <Lucide icon="Pencil" className="w-4 h-4 mr-2" /> Edit Profile
         </Button>
       </div>
       <Tab.Group>

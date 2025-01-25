@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Site } from "@/types/site";
 import api from "@/api/axios";
 import { LoadingTag } from "@/components/Loading";
+// import { showNotification } from "@/components/ShowMessage"; // Adjust the path accordingly
 // ... import other components
 
 function Main() {
@@ -30,10 +31,10 @@ function Main() {
     try {
       await api.put(`/sites/${id}`, formData);
       navigate('/sites');
-      showNotification(true, "Site updated successfully");
+      // showNotification(true, "Site updated successfully");
     } catch (error) {
       console.error("Error updating site:", error);
-      showNotification(false, "Failed to update site");
+      // showNotification(false, "Failed to update site");
     }
   };
 

@@ -11,6 +11,7 @@ import { Site } from "@/types/site";
 import imageUrl from '@/assets/images/logoSingle.png';
 import { useNavigate } from "react-router-dom";
 import { LoadingTag } from "@/components/Loading";
+// import Notification from "@/components/Base/Notification";
 
 
 function Main() {
@@ -81,10 +82,10 @@ function Main() {
       setDeleteConfirmationModal(false);
       
       // Show success notification
-      showNotification(true, "Site deleted successfully");
+      // Notification(true, "Site deleted successfully");
     } catch (error) {
       console.error("Error deleting site:", error);
-      showNotification(false, "Failed to delete site");
+      // Notification(false, "Failed to delete site");
     }
   };
 

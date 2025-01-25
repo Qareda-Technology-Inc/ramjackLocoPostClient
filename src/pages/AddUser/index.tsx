@@ -193,7 +193,7 @@ function Main() {
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={onFileChange}
+                        onChange={onFileChange as any}
                         className="hidden"
                       />
                     </label>

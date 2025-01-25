@@ -171,7 +171,7 @@ function Main() {
                                 <Lucide icon="User" className="w-4 h-4 mr-2" /> View Profile
                               </Menu.Item>
                               <Menu.Item onClick={() => editEmployee(user._id)}>
-                                <Lucide icon="Edit" className="w-4 h-4 mr-2" /> Edit
+                                <Lucide icon="Pencil" className="w-4 h-4 mr-2" /> Edit
                               </Menu.Item>
                               <Menu.Item
                                 onClick={() => handleStatusChange(user._id, user.status)}

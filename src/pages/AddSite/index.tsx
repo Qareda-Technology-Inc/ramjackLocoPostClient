@@ -67,18 +67,19 @@ import { LoadingTag } from "@/components/Loading";
       
       if (!result) {
           const failedEl = document
-              .querySelectorAll("#failed-notification-content")[0]
-              .cloneNode(true) as HTMLElement;
-          failedEl.classList.remove("hidden");
-          Toastify({
-              node: failedEl,
-              duration: 3000,
-              newWindow: true,
-              close: true,
-              gravity: "top",
-              position: "right",
-              stopOnFocus: true,
-          }).showToast();
+              .querySelector("#failed-notification-content")?.cloneNode(true) as HTMLElement;
+          if (failedEl) {
+              failedEl.classList.remove("hidden");
+              Toastify({
+                  node: failedEl,
+                  duration: 3000,
+                  newWindow: true,
+                  close: true,
+                  gravity: "top",
+                  position: "right",
+                  stopOnFocus: true,
+              }).showToast();
+          }
       } else {
           const formData = {
               name: getValues("name"),
@@ -93,53 +94,45 @@ import { LoadingTag } from "@/components/Loading";
             setLoading(true)
               const response = await api.post("sites/add", formData);              
               const successEl = document
-                  .querySelectorAll("#success-notification-content")[0]
-                  .cloneNode(true) as HTMLElement;
-              successEl.classList.remove("hidden");
+                  .querySelector("#success-notification-content")?.cloneNode(true) as HTMLElement;
+              if (successEl) {
+                  successEl.classList.remove("hidden");
+                  const successMessage = response.data.message || "Registration success!";
+                  const messageElement = successEl.querySelector('.font-medium');
+                  if (messageElement) {
+                      messageElement.textContent = successMessage;
+                  }
+                  
+                  Toastify({
+                      node: successEl,
+                      duration: 3000,
+                      newWindow: true,
+                      close: true,
+                      gravity: "top",
+                      position: "right",
+                      stopOnFocus: true,
+                  }).showToast();
+              }
               
-              // Use the message from the API response if available
-              const successMessage = response.data.message || "Registration success!";
-              successEl.querySelector('.font-medium').textContent = successMessage;
-              
-              Toastify({
-                  node: successEl,
-                  duration: 3000,
-                  newWindow: true,
-                  close: true,
-                  gravity: "top",
-                  position: "right",
-                  stopOnFocus: true,
-              }).showToast();
-              
-              reset(); // Clear form inputs
-              setImageFile(null); // Reset file input
-              setImageUrl(""); // Clear image URL
+              reset();
+              setImageFile(null);
+              setImageUrl("");
               navigate('/sites')
           } catch (error: any) {
               console.error("Registration error:", error);
               const failedEl = document
-                  .querySelectorAll("#failed-notification-content")[0]
-                  .cloneNode(true) as HTMLElement;
-              failedEl.classList.remove("hidden");
-              
-              // Extract the error message from the server response
-              let errorMessage = "An unexpected error occurred. Please try again.";
-              if (error.response && error.response.data) {
-                  // Check if there's a specific error message
-                  errorMessage = error.response.data.error || errorMessage; // Adjust to match your server's error response structure
+                  .querySelector("#failed-notification-content")?.cloneNode(true) as HTMLElement;
+              if (failedEl) {
+                  failedEl.classList.remove("hidden");
+                  let errorMessage = "An unexpected error occurred. Please try again.";
+                  if (error.response && error.response.data) {
+                      errorMessage = error.response.data.error || errorMessage;
+                  }
+                  const errorMessageElement = failedEl.querySelector('.font-medium');
+                  if (errorMessageElement) {
+                      errorMessageElement.textContent = errorMessage;
+                  }
               }
-              
-              failedEl.querySelector('.font-medium').textContent = errorMessage;
-  
-              Toastify({
-                  node: failedEl,
-                  duration: 3000,
-                  newWindow: true,
-                  close: true,
-                  gravity: "top",
-                  position: "right",
-                  stopOnFocus: true,
-              }).showToast();
               setLoading(false)
           }
       }
@@ -252,7 +245,7 @@ import { LoadingTag } from "@/components/Loading";
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={onFileChange}
+                      onChange={onFileChange as any}
                       className="border rounded-md px-4 py-2 w-full"
                     />
                     {image && (

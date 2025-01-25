@@ -9,6 +9,7 @@ import TablePage from '../TablePage';
 
 function Main() {
     const [kpi, setKPI] = useState<KPI>({
+        _id: '',
         description: '',
         targetValue: 0,
         actualValue: 0
@@ -65,7 +66,7 @@ function Main() {
                 style: { background: "blue" },
             }).showToast();
             setIsKpiModalOpen(false);
-            setKPI({ description: '', targetValue: 0, actualValue: 0 }); // Reset form
+            setKPI({ _id: '', description: '', targetValue: 0, actualValue: 0 }); // Reset form
         } catch (error) {
             console.error("Error creating KPI:", error);
             Toastify({
@@ -200,7 +201,7 @@ function Main() {
                             id="description"
                             name="description"
                             value={task.description}
-                            onChange={handleTaskChange}
+                            onChange={handleTaskChange as any}
                             required
                             className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring focus:ring-orange-600"
                             placeholder="Enter task description"
@@ -215,7 +216,7 @@ function Main() {
                             id="kpi"
                             name="kpi"
                             value={task.kpi}
-                            onChange={handleTaskChange}
+                            onChange={handleTaskChange as any}
                             required
                             className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring focus:ring-orange-600"
                         >
