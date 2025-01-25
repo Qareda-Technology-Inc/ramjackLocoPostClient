@@ -35,7 +35,7 @@ function Router() {
       children: [
         {
           path: "/",
-          element: <PrivateRoute element={<Dashboard />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER"]} />,
+          element: <PrivateRoute element={<Dashboard />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", 'SITE-REP', 'FIELD-ENGINEER']} />,
         },
         {
           path: "employees",
