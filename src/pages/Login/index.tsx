@@ -9,14 +9,9 @@ import { useNavigate } from 'react-router-dom';
 import { AppDispatch } from "@/stores/store";
 import { login, setUser } from "@/stores/authSlice";
 import { unwrapResult } from '@reduxjs/toolkit';
-import { redirectToPage } from '@/utils/roleRedirect';
-import ShowMessage from '@/components/ShowMessage'; // Import your ShowMessage component
-import { useAppDispatch } from "@/stores/hooks";
-import api from "@/api/axios";
 import Toastify from 'toastify-js';
 import { LoadingTag } from "@/components/Loading";
 import Notification from "@/components/Base/Notification";
-import axios from 'axios';
 
 function Main() {
   const navigate = useNavigate();
@@ -25,8 +20,6 @@ function Main() {
   const [password, setPassword] = useState<string>("");
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>(""); // State to hold message
-  const [isSuccess, setIsSuccess] = useState<boolean>(false); // State to determine success or error
 
   const showNotification = (type: 'success' | 'error', message: string) => {
     const notificationId = type === 'success' ? 
@@ -51,53 +44,10 @@ function Main() {
         gravity: "top",
         position: "right",
         stopOnFocus: true,
+        backgroundColor: 'hidden',
       }).showToast();
     }
   };
-
-  // const handleLogin = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-    
-  //   if (!identityNo || !password) {
-  //     showNotification('error', 'Please enter both ID and password');
-  //     return;
-  //   }
-
-  //   try {
-  //     setLoading(true);
-  //     const response = await api.post('/users/login', {
-  //       identityNo,
-  //       password
-  //     });
-
-  //     if (response.data.success) {
-  //       setMessage(""); // Clear previous messages
-  //       setIsSuccess(true); // Set to success for ShowMessage
-  //       showNotification('success', 'Login successful');
-        
-  //       // Store user data and token
-  //       localStorage.setItem('token', response.data.token);
-  //       localStorage.setItem('user', JSON.stringify(response.data.user));
-        
-  //       // Check for first login
-  //       if (response.data.user.isFirstLogin) {
-  //         navigate('/change-password');
-  //       } else {
-  //         navigate('/');
-  //       }
-  //     }
-  //   } catch (error) {
-  //     let errorMessage = 'An error occurred during login';
-      
-  //     if (axios.isAxiosError(error)) {
-  //       errorMessage = error.response?.data?.message || errorMessage;
-  //     }
-      
-  //     showNotification('error', errorMessage);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,9 +144,6 @@ function Main() {
                       e-commerce accounts in one place
                     </div>
 
-                    {/* Error Message Display */}
-                    {message && <ShowMessage message={message} isSuccess={isSuccess} />} {/* Display message with variant */}
-
                     <div className="mt-8 intro-x">
                       <FormInput
                         type="text"
@@ -262,18 +209,12 @@ function Main() {
       )}
 
       {/* Notifications */}
-      <Notification id="success-notification-content" className="hidden">
+      <Notification id="success-notification-content">
         <div className="font-medium text-success">Success</div>
-        <div className="text-slate-500 mt-1">
-          Login successful
-        </div>
       </Notification>
 
-      <Notification id="failed-notification-content" className="hidden">
+      <Notification id="failed-notification-content">
         <div className="font-medium text-danger">Error</div>
-        <div className="text-slate-500 mt-1">
-          Please check your credentials and try again
-        </div>
       </Notification>
     </>
   );
