@@ -35,16 +35,17 @@ function Main() {
       if (item === "divider") return true;
 
       if (user.role === "ADMIN") {
-        const adminExcludedTitles = ['Assignment', 'Task Assignment'];
-        return !adminExcludedTitles.includes(item.title);
+        // const adminExcludedTitles = ['Assignment', 'Task Assignment'];
+        // return !adminExcludedTitles.includes(item.title);
+        return true;
       }
 
       if (user.role === "FIELD-TECHNICIAN" || user.role === "FIELD-TECHNICIAN" && item instanceof Object) {
         if (item.subMenu) {
-          return item.title === "Assignment";
+          return item.title === "My Assignments";
         }
 
-        const allowedPaths = ['/', '/assignments', '/notification',];
+        const allowedPaths = ['/', '/my-assignments', '/my-tasks', '/my-kpis', '/notification', '/support'];
         const isAllowed = item.pathname ? allowedPaths.includes(item.pathname) : false;
         return isAllowed;
       }

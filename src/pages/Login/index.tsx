@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import logoUrl from "@/assets/images/logoSingle.png";
 import illustrationUrl from "@/assets/images/logo.png";
 import { FormInput, FormCheck } from "@/components/Base/Form";
@@ -7,9 +7,8 @@ import Button from "@/components/Base/Button";
 import clsx from "clsx";
 import { useNavigate } from 'react-router-dom';
 import { AppDispatch } from "@/stores/store";
-import { login, setUser } from "@/stores/authSlice";
+import { login } from "@/stores/authSlice";
 import { unwrapResult } from '@reduxjs/toolkit';
-import Toastify from 'toastify-js';
 import { LoadingTag } from "@/components/Loading";
 import Notification from "@/components/Base/Notification";
 
@@ -20,40 +19,23 @@ function Main() {
   const [password, setPassword] = useState<string>("");
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  
+  // Notification states
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationType, setNotificationType] = useState<"success" | "error">("success");
 
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    const notificationId = type === 'success' ? 
-      '#success-notification-content' : 
-      '#failed-notification-content';
-    
-    const notificationEl = document.querySelector(notificationId);
-    if (notificationEl) {
-      const clonedEl = notificationEl.cloneNode(true) as HTMLElement;
-      clonedEl.classList.remove('hidden');
-      
-      const messageEl = clonedEl.querySelector('.font-medium');
-      if (messageEl) {
-        messageEl.textContent = message;
-      }
-      
-      Toastify({
-        node: clonedEl,
-        duration: 3000,
-        newWindow: true,
-        close: true,
-        gravity: "top",
-        position: "right",
-        stopOnFocus: true,
-        backgroundColor: 'hidden',
-      }).showToast();
-    }
+  const handleNotification = (type: "success" | "error", message: string, show: boolean) => {
+    setShowNotification(show);
+    setNotificationType(type);
+    setNotificationMessage(message);
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!identityNo || !password) {
-      showNotification('error', 'Please enter both ID and password');
+      handleNotification('error', 'Please enter both ID and password', true);
       return;
     }
   
@@ -61,19 +43,22 @@ function Main() {
       setLoading(true);
       const resultAction = await dispatch(login({ identityNo, password }));
       const response = unwrapResult(resultAction);
-  
+      
       if (response.success) {
-        showNotification('success', 'Login successful');
-        if (response.user.isFirstLogin) {
-          navigate('/change-password');
-        } else {
-          navigate('/');
-        }
+        
+        setTimeout(() => {
+          if (response.user.isFirstLogin) {
+            navigate('/change-password');
+          } else {
+            navigate('/');
+          }
+        }, 1000);
+        handleNotification('success', response.message, true);
       } else {
-        showNotification('error', response.message || 'Login failed');
+        handleNotification('error', response.message || 'Login failed', true);
       }
     } catch (error: any) {
-      showNotification('error', error.message || 'Login failed');
+      handleNotification('error', error || 'Login failed', true);
     } finally {
       setLoading(false);
     }
@@ -208,14 +193,13 @@ function Main() {
         </form>
       )}
 
-      {/* Notifications */}
-      <Notification id="success-notification-content">
-        <div className="font-medium text-success">Success</div>
-      </Notification>
-
-      <Notification id="failed-notification-content">
-        <div className="font-medium text-danger">Error</div>
-      </Notification>
+      <Notification
+        show={showNotification}
+        type={notificationType}
+        message={notificationMessage}
+        onClose={() => setShowNotification(false)}
+        duration={3000}
+      />
     </>
   );
 }

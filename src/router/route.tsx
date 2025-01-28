@@ -1,7 +1,6 @@
 import { useRoutes } from "react-router-dom";
-import EmployeeHome from "../pages/EmployeeHome";
 import Employees from "../pages/Employees";
-import Test from "../pages/FaqLayout2";
+import SupportHelp from "../pages/SupportHelp";
 import Login from "../pages/Login";
 import ForgotPassword from "../pages/ForgotPassword";
 import ErrorPage from "../pages/ErrorPage";
@@ -24,8 +23,9 @@ import Profile from "@/pages/Profile";
 import EditProfile from "@/pages/EditProfile";
 import ChangePassword from"@/pages/ChangePassword";
 import ResetPassword from "@/pages/ResetPassword";
-import ViewAllAssignments from "@/pages/viewAllAssignment";
-import KPIForm from "@/pages/KPIForm";
+import MyAssignments from "@/pages/MyAssignments";
+import TaskList from "@/pages/TaskList";
+import FormPage from "@/pages/FormPage";
 
 function Router() {
   const routes = [
@@ -103,16 +103,20 @@ function Router() {
           element: <PrivateRoute element={<Assignment />} allowedRoles={["ADMIN", "MANAGER"]} />,
         },
         {
-          path: "approve",
-          element: <PrivateRoute element={<EmployeeHome />} allowedRoles={["FIELD-TECHNICIAN", "FIELD-ENGINEERS", "SITE-REP"]} />, 
-        },
-        {
           path: "view-assignment/:id",
           element: <PrivateRoute element={<ViewAssignment />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REP"]} />,
         },
         {
-          path: "assignments",
-          element: <PrivateRoute element={<ViewAllAssignments />} allowedRoles={["FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REP"]} />,
+          path: "my-assignments",
+          element: <PrivateRoute element={<MyAssignments />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REP"]} />,
+        },
+        {
+          path: "my-tasks",
+          element: <PrivateRoute element={<MyAssignments />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REP"]} />,
+        },
+        {
+          path: "my-kpis",
+          element: <PrivateRoute element={<MyAssignments />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REP"]} />,
         },
         {
           path: "/profile/:userId",
@@ -124,11 +128,15 @@ function Router() {
         },
         {
           path: "/test",
-          element: <PrivateRoute element={<KPIForm />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REP"]} />,
+          element: <PrivateRoute element={<FormPage />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REP"]} />,
+        },
+        {
+          path: "/support",
+          element: <PrivateRoute element={<SupportHelp />} allowedRoles={["ADMIN", "FIELD-TECHNICIAN", "MANAGER", "FIELD-ENGINEER", "SITE-REP"]} />,
         },
         {
           path: "/tasks",
-          element: <PrivateRoute element={<KPIForm />} allowedRoles={["ADMIN", "MANAGER", "SITE-REP"]} />,
+          element: <PrivateRoute element={<TaskList />} allowedRoles={["ADMIN", "MANAGER", "SITE-REP"]} />,
         },
       ],
     },

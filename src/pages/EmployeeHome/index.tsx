@@ -164,7 +164,7 @@ function Main() {
   };
 
   const viewAllAssignments = () => {
-    navigate('/assignments');
+    navigate('/my-assignments');
   };
 
   const totalTasks = tasks.reduce(
@@ -174,11 +174,11 @@ function Main() {
 
   return (
     <>
+    {loading && <LoadingTag />}
       <div className="relative">
         <div className="grid grid-cols-12 gap-6">
           <div className="z-20 col-span-12 xl:col-span-9 2xl:col-span-9">
             <div className="mt-6 -mb-6 intro-y">
-              {loading && <LoadingTag />}
             </div>
             <div className="grid grid-cols-12 mb-3 mt-14 sm:gap-10 intro-y">
               <div className="relative col-span-12 py-6 text-center sm:col-span-6 md:col-span-4 sm:pl-5 md:pl-0 lg:pl-5 sm:text-left">

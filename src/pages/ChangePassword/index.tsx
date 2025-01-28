@@ -6,53 +6,25 @@ import { FormInput } from "@/components/Base/Form";
 import Button from "@/components/Base/Button";
 import clsx from "clsx";
 import api from "@/api/axios";
-import Toastify from 'toastify-js';
 import { LoadingTag } from "@/components/Loading";
 import Notification from "@/components/Base/Notification";
 
 function Main() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
-    confirmPassword: '',
+    confirmPassword: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationType, setNotificationType] = useState<"success" | "error">("success");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.newPassword !== formData.confirmPassword) {
-      showNotification('error', 'New passwords do not match');
-      return;
-    }
-
-    if (formData.newPassword.length < 6) {
-      showNotification('error', 'New password must be at least 6 characters long');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await api.post('/users/change-password', {
-        currentPassword: formData.currentPassword,
-        newPassword: formData.newPassword
-      });
-
-      if (response.data.success) {
-        showNotification('success', 'Password changed successfully');
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
-      }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Error changing password';
-      showNotification('error', errorMessage);
-    } finally {
-      setLoading(false);
-    }
+  const handleNotification = (type: "success" | "error", message: string) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+    setShowNotification(true);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,30 +35,27 @@ function Main() {
     }));
   };
 
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    const notificationId = type === 'success' ? 
-      '#success-notification-content' : 
-      '#failed-notification-content';
-    
-    const notificationEl = document.querySelector(notificationId);
-    if (notificationEl) {
-      const clonedEl = notificationEl.cloneNode(true) as HTMLElement;
-      clonedEl.classList.remove('hidden');
-      
-      const messageEl = clonedEl.querySelector('.font-medium');
-      if (messageEl) {
-        messageEl.textContent = message;
-      }
-      
-      Toastify({
-        node: clonedEl,
-        duration: 3000,
-        newWindow: true,
-        close: true,
-        gravity: "top",
-        position: "right",
-        stopOnFocus: true,
-      }).showToast();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (formData.newPassword !== formData.confirmPassword) {
+      handleNotification('error', 'New passwords do not match');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await api.post('/users/change-password', {
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword
+      });
+      handleNotification('success', response.data.message || 'Password changed successfully');
+      setTimeout(() => navigate('/login'), 3000);
+    } catch (error: any) {
+      console.error('Error:', error);
+      handleNotification('error', error.response?.data?.message || 'Error changing password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,9 +74,9 @@ function Main() {
               <div className="block grid-cols-2 gap-4 xl:grid">
                 {/* BEGIN: Change Password Info */}
                 <div className="flex-col hidden min-h-screen xl:flex">
-                  <a href="/" className="flex items-center pt-5 -intro-x">
+                  <a href="" className="flex items-center pt-5 -intro-x">
                     <img
-                      alt="RTS"
+                      alt="Qaretech Innovative"
                       className="w-6"
                       src={logoUrl}
                     />
@@ -120,16 +89,15 @@ function Main() {
                       src={illustrationUrl}
                     />
                     <div className="mt-10 text-4xl font-medium leading-tight text-white -intro-x">
-                      First Time Login <br />
-                      Change Your Password
+                      A few more clicks to <br />
+                      change your password.
                     </div>
                     <div className="mt-5 text-lg text-white -intro-x text-opacity-70 dark:text-slate-400">
-                      Please change your password to continue
+                      Manage all your assigned location and track your field progress
                     </div>
                   </div>
                 </div>
                 {/* END: Change Password Info */}
-
                 {/* BEGIN: Change Password Form */}
                 <div className="flex h-screen py-5 my-10 xl:h-auto xl:py-0 xl:my-0">
                   <div className="w-full px-5 py-8 mx-auto my-auto bg-white rounded-md shadow-md xl:ml-20 dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-auto">
@@ -137,9 +105,9 @@ function Main() {
                       Change Password
                     </h2>
                     <div className="mt-2 text-center intro-x text-slate-400 xl:hidden">
-                      Please change your password to continue using the system
+                      A few more clicks to change your password. Manage all your
+                      accounts in one place
                     </div>
-
                     <div className="mt-8 intro-x">
                       <FormInput
                         type="password"
@@ -166,7 +134,6 @@ function Main() {
                         onChange={handleChange}
                       />
                     </div>
-
                     <div className="mt-5 text-center intro-x xl:mt-8 xl:text-left">
                       <Button
                         type="submit"
@@ -185,20 +152,13 @@ function Main() {
         </form>
       )}
 
-      {/* Notifications */}
-      <Notification id="success-notification-content" className="hidden">
-        <div className="font-medium text-success">Success</div>
-        <div className="text-slate-500 mt-1">
-          Password changed successfully
-        </div>
-      </Notification>
-
-      <Notification id="failed-notification-content" className="hidden">
-        <div className="font-medium text-danger">Error</div>
-        <div className="text-slate-500 mt-1">
-          Please check your input and try again
-        </div>
-      </Notification>
+      <Notification
+        show={showNotification}
+        type={notificationType}
+        message={notificationMessage}
+        onClose={() => setShowNotification(false)}
+        duration={3000}
+      />
     </>
   );
 }

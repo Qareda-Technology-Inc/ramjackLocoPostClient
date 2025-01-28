@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import Toastify from "toastify-js";
 import { AxiosError } from 'axios';
 import Notification from "@/components/Base/Notification";
+import { LoadingTag } from "@/components/Loading";
 
 const Main: React.FC = () => {
     const navigate = useNavigate();
@@ -20,6 +21,9 @@ const Main: React.FC = () => {
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
+    const [showNotification, setShowNotification] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState("");
+    const [notificationType, setNotificationType] = useState<"success" | "error">("success");
     const [assignment, setAssignment] = useState<any>(null); // Store fetched assignment
     const token = localStorage.getItem('token');
 
@@ -69,6 +73,12 @@ const Main: React.FC = () => {
         fetchAssignment();
 
     }, [token, id]);
+
+    const handleNotification = (type: "success" | "error", message: string) => {
+        setNotificationType(type);
+        setNotificationMessage(message);
+        setShowNotification(true);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -120,61 +130,15 @@ const Main: React.FC = () => {
                 });
             }
 
-            // Success notification
-            const successElements = document.querySelectorAll("#success-notification-content");
-            if (successElements.length > 0) {
-                const successEl = successElements[0].cloneNode(true) as HTMLElement;
-                successEl.classList.remove("hidden");
-
-                const successMessage = response.data.message || "Operation successful!";
-                const messageElement = successEl.querySelector('.font-medium');
-                if (messageElement) {
-                    messageElement.textContent = successMessage;
-                }
-
-                Toastify({
-                    node: successEl,
-                    duration: 3000,
-                    newWindow: true,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    stopOnFocus: true,
-                    style:{
-                        background: "green",
-                    }
-                }).showToast();
-            }
-
+            handleNotification('success', response.data.message || "Operation successful!");
             navigate('/view-assign');
         } catch (error: unknown) {
             console.error('Error assigning employee:', error);
-
-            const errorElements = document.querySelectorAll("#failed-notification-content");
-            if (errorElements.length > 0) {
-                const errorEl = errorElements[0].cloneNode(true) as HTMLElement;
-                errorEl.classList.remove("hidden");
-
-                let errorMessage = "An error occurred during assignment.";
-                if (error instanceof AxiosError && error.response) {
-                    errorMessage = error.response.data.message || "An error occurred.";
-                }
-
-                const messageElement = errorEl.querySelector('.font-medium');
-                if (messageElement) {
-                    messageElement.textContent = errorMessage;
-                }
-
-                Toastify({
-                    node: errorEl,
-                    duration: 3000,
-                    newWindow: true,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    stopOnFocus: true,
-                }).showToast();
+            let errorMessage = "An error occurred during assignment.";
+            if (error instanceof AxiosError && error.response) {
+                errorMessage = error.response.data.message || "An error occurred.";
             }
+            handleNotification('error', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -182,104 +146,110 @@ const Main: React.FC = () => {
 
     return (
         <>
-        <div className="grid grid-cols-1 gap-6 mt-5">
-            <div className="col-span-12 intro-y lg:col-span-6">
-                <div className="p-5">
-                    <h2 className="text-xl font-semibold mb-4">{id ? 'Edit Assignment' : 'Assign Employee to Site'}</h2>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="input-form intro-y">
-                            <FormLabel htmlFor="employee" className="flex flex-col">
-                                Employee
-                                <span className="mt-1 text-xs text-slate-500">Required</span>
-                            </FormLabel>
-                            <select
-                                id="employee"
-                                value={selectedEmployee}
-                                onChange={(e) => setSelectedEmployee(e.target.value)}
-                                required
-                                className={clsx("mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-orange-600")}
-                            >
-                                <option value="">Select an employee</option>
-                                {employees.map((employee) => (
-                                    <option key={employee._id} value={employee._id.toString()}>
-                                        {employee.firstName} {employee.lastName}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+            {loading ? (
+                <LoadingTag />
+            ) : (
+                <div className="grid grid-cols-1 gap-6 mt-5">
+                    <div className="col-span-12 intro-y lg:col-span-6">
+                        <div className="p-5">
+                            <h2 className="text-xl font-semibold mb-4">{id ? 'Edit Assignment' : 'Assign Employee to Site'}</h2>
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="input-form intro-y">
+                                    <FormLabel htmlFor="employee" className="flex flex-col">
+                                        Employee
+                                        <span className="mt-1 text-xs text-slate-500">Required</span>
+                                    </FormLabel>
+                                    <select
+                                        id="employee"
+                                        value={selectedEmployee}
+                                        onChange={(e) => setSelectedEmployee(e.target.value)}
+                                        required
+                                        className={clsx("mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-orange-600")}
+                                    >
+                                        <option value="">Select an employee</option>
+                                        {employees.map((employee) => (
+                                            <option key={employee._id} value={employee._id.toString()}>
+                                                {employee.firstName} {employee.lastName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                        <div className="input-form intro-y">
-                            <FormLabel htmlFor="site" className="flex flex-col">
-                                Site:
-                                <span className="mt-1 text-xs text-slate-500">Required</span>
-                            </FormLabel>
-                            <select
-                                id="site"
-                                value={selectedSite}
-                                onChange={(e) => setSelectedSite(e.target.value)}
-                                required
-                                className={clsx("mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-orange-600")}
-                            >
-                                <option value="">Select a site</option>
-                                {sites.map((site) => (
-                                    <option key={site._id} value={site._id.toString()}>
-                                        {site.country} &gt; {site.location} &gt; {site.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                                <div className="input-form intro-y">
+                                    <FormLabel htmlFor="site" className="flex flex-col">
+                                        Site:
+                                        <span className="mt-1 text-xs text-slate-500">Required</span>
+                                    </FormLabel>
+                                    <select
+                                        id="site"
+                                        value={selectedSite}
+                                        onChange={(e) => setSelectedSite(e.target.value)}
+                                        required
+                                        className={clsx("mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-orange-600")}
+                                    >
+                                        <option value="">Select a site</option>
+                                        {sites.map((site) => (
+                                            <option key={site._id} value={site._id.toString()}>
+                                                {site.country} &gt; {site.location} &gt; {site.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                        <div className="input-form intro-y">
-                            <FormLabel htmlFor="startDate" className="flex flex-col">
-                                Start Date:
-                                <span className="mt-1 text-xs text-slate-500">Required</span>
-                            </FormLabel>
-                            <input
-                                type="date"
-                                id="startDate"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                required
-                                className={clsx("mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-orange-600")}
-                            />
-                        </div>
+                                <div className="input-form intro-y">
+                                    <FormLabel htmlFor="startDate" className="flex flex-col">
+                                        Start Date:
+                                        <span className="mt-1 text-xs text-slate-500">Required</span>
+                                    </FormLabel>
+                                    <input
+                                        type="date"
+                                        id="startDate"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        required
+                                        className={clsx("mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-orange-600")}
+                                    />
+                                </div>
 
-                        <div className="input-form intro-y">
-                            <FormLabel htmlFor="endDate" className="flex flex-col">
-                                End Date:
-                                <span className="mt-1 text-xs text-slate-500">Required</span>
-                            </FormLabel>
-                            <input
-                                type="date"
-                                id="endDate"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                required
-                                className={clsx("mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-orange-600")}
-                            />
-                        </div>
+                                <div className="input-form intro-y">
+                                    <FormLabel htmlFor="endDate" className="flex flex-col">
+                                        End Date:
+                                        <span className="mt-1 text-xs text-slate-500">Required</span>
+                                    </FormLabel>
+                                    <input
+                                        type="date"
+                                        id="endDate"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        required
+                                        className={clsx("mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-orange-600")}
+                                    />
+                                </div>
 
-                        <button 
-                            type="submit"
-                            disabled={loading}
-                            className={clsx("w-full mt-5 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring focus:ring-orange-300", {
-                                'opacity-50 cursor-not-allowed': loading,
-                            })}
-                        >
-                            {loading ? 'Assigning...' : id ? 'Update Assignment' : 'Assign Employee'}
-                        </button>
+                                <button 
+                                    type="submit"
+                                    disabled={loading}
+                                    className={clsx("w-full mt-5 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring focus:ring-orange-300", {
+                                        'opacity-50 cursor-not-allowed': loading,
+                                    })}
+                                >
+                                    {loading ? 'Assigning...' : id ? 'Update Assignment' : 'Assign Employee'}
+                                </button>
+                            </div>
+                            </form>
+                        </div>
                     </div>
-                    </form>
                 </div>
-            </div>
-        </div>
-        <Notification id="success-notification-content" className="hidden">
-            <div className="font-medium">Registration success!</div>
-        </Notification>
-        <Notification id="failed-notification-content" className="hidden">
-            <div className="font-medium">Registration failed!</div>
-        </Notification>
+            )}
+
+            <Notification
+                show={showNotification}
+                type={notificationType}
+                message={notificationMessage}
+                onClose={() => setShowNotification(false)}
+                duration={3000}
+            />
         </>
     );
 };

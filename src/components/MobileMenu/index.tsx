@@ -13,6 +13,8 @@ import logoUrl from "@/assets/images/logoSingle.png";
 import clsx from "clsx";
 import SimpleBar from "simplebar";
 import { icons } from "lucide-react";
+import { RootState } from "@/stores/store";
+import { useSelector } from "react-redux";
 
 function Main() {
   const navigate = useNavigate();
@@ -22,16 +24,56 @@ function Main() {
   >([]);
   const themeStore = useAppSelector(selectTheme);
   const menuStore = useAppSelector(selectMenu(themeStore.layout));
-  const menu = () => nestedMenu(toRaw(menuStore), location);
+  const user = useSelector((state: RootState) => state.auth.user);
   const [activeMobileMenu, setActiveMobileMenu] = useState(false);
   const scrollableRef = createRef<HTMLDivElement>();
+
+  const mobileMenu = () => {
+    const baseMenu = nestedMenu(toRaw(menuStore), location);
+    
+    if (!user?.role) {
+      return baseMenu;
+    }
+
+    return baseMenu.filter(item => {
+      if (item === "divider") return true;
+
+      if (user.role === "ADMIN") {
+        const adminExcludedTitles = ['Assignment', 'Task Assignment'];
+        return !adminExcludedTitles.includes(item.title);
+      }
+
+      if (user.role === "FIELD-TECHNICIAN" && item instanceof Object) {
+        if (item.subMenu) {
+          return item.title === "Assignment";
+        }
+
+        const allowedPaths = ['/', '/my-assignments', '/my-tasks', '/my-kpis', '/notification', '/support'];
+        const isAllowed = item.pathname ? allowedPaths.includes(item.pathname) : false;
+        return isAllowed;
+      }
+
+      if ((user.role === "MANAGER" || user.role === "SITE-REP") && item instanceof Object) {
+        if (item.subMenu) {
+          return item.title === "Assignments" || item.title === "Sites" || 
+                 item.title === "Employees" || item.title === "Tasks and KPIs";
+        }
+
+        const allowedPaths = ['/', '/assignments', '/notification'];
+        const isAllowed = item.pathname ? allowedPaths.includes(item.pathname) : false;
+        return isAllowed;
+      }
+
+      return false;
+    });
+  };
 
   useEffect(() => {
     if (scrollableRef.current) {
       new SimpleBar(scrollableRef.current);
     }
-    setFormattedMenu(menu());
-  }, [menuStore, location.pathname]);
+    setFormattedMenu(mobileMenu());
+  }, [menuStore, location.pathname, user?.role]);
 
   return (
     <>

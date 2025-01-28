@@ -10,8 +10,6 @@ import Lucide from "@/components/Base/Lucide";
 import { Tab } from "@headlessui/react";
 import clsx from "clsx";
 import Notification from "@/components/Base/Notification";
-import Toastify from 'toastify-js';
-import 'toastify-js/src/toastify.css';
 
 function Main() {
   const { userId } = useParams();
@@ -19,6 +17,9 @@ function Main() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationType, setNotificationType] = useState<"success" | "error">("success");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -69,6 +70,12 @@ function Main() {
     if (userId) fetchUser();
   }, [userId]);
 
+  const handleNotification = (type: "success" | "error", message: string) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+    setShowNotification(true);
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -78,34 +85,6 @@ function Main() {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-    }
-  };
-
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    const notificationId = type === 'success' ? 
-      '#success-notification-content' : 
-      '#failed-notification-content';
-    
-    const notificationEl = document.querySelector(notificationId);
-    if (notificationEl) {
-      const clonedEl = notificationEl.cloneNode(true) as HTMLElement;
-      clonedEl.classList.remove('hidden');
-      
-      const messageEl = clonedEl.querySelector('.text-slate-500');
-      if (messageEl) {
-        messageEl.textContent = message;
-      }
-      
-      Toastify({
-        node: clonedEl,
-        duration: 3000,
-        newWindow: true,
-        close: true,
-        gravity: "top",
-        position: "right",
-        stopOnFocus: true,
-        className: "toastify-content",
-      }).showToast();
     }
   };
 
@@ -140,14 +119,6 @@ function Main() {
       });
       formDataToSend.append('socialMedia', socialMediaString);
 
-      // Log the data being sent
-      console.log('Sending form data:', {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        contactInfo: contactInfoString,
-        socialMedia: socialMediaString
-      });
-
       const response = await api.patch(`/users/${userId}`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -155,7 +126,7 @@ function Main() {
       });
 
       if (response.data.success) {
-        showNotification('success', 'Profile updated successfully');
+        handleNotification('success', 'Profile updated successfully');
         setTimeout(() => {
           navigate(`/profile/${userId}`);
         }, 2000);
@@ -163,7 +134,7 @@ function Main() {
     } catch (error: any) {
       console.error('Error updating profile:', error);
       const errorMessage = error.response?.data?.message || 'Error updating profile';
-      showNotification('error', errorMessage);
+      handleNotification('error', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -344,19 +315,13 @@ function Main() {
           </Tab.Group>
         </div>
       </div>
-      <Notification id="success-notification-content" className="hidden">
-        <div className="font-medium text-success">Success</div>
-        <div className="text-slate-500 mt-1">
-          Profile updated successfully
-        </div>
-      </Notification>
-
-      <Notification id="failed-notification-content" className="hidden">
-        <div className="font-medium text-danger">Error</div>
-        <div className="text-slate-500 mt-1">
-          Failed to update profile
-        </div>
-      </Notification>
+      <Notification
+        show={showNotification}
+        type={notificationType}
+        message={notificationMessage}
+        onClose={() => setShowNotification(false)}
+        duration={3000}
+      />
     </div>
   );
 }

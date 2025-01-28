@@ -21,7 +21,16 @@ import { LoadingTag } from "@/components/Loading";
     const [imageUrl, setImageUrl] = useState("");
     const [image, setImage] = useState("");
     const [loading, setLoading] = useState<boolean>(false);
-    
+    const [showNotification, setShowNotification] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState("");
+    const [notificationType, setNotificationType] = useState<"success" | "error">("success");
+
+    const handleNotification = (type: "success" | "error", message: string) => {
+      setNotificationType(type);
+      setNotificationMessage(message);
+      setShowNotification(true);
+    };
+
     const schema = yup
     .object({
     name: yup.string().required().min(2),
@@ -66,77 +75,34 @@ import { LoadingTag } from "@/components/Loading";
       const result = await trigger();
       
       if (!result) {
-          const failedEl = document
-              .querySelector("#failed-notification-content")?.cloneNode(true) as HTMLElement;
-          if (failedEl) {
-              failedEl.classList.remove("hidden");
-              Toastify({
-                  node: failedEl,
-                  duration: 3000,
-                  newWindow: true,
-                  close: true,
-                  gravity: "top",
-                  position: "right",
-                  stopOnFocus: true,
-              }).showToast();
-          }
+        handleNotification('error', 'Please check the form and try again.');
       } else {
+        try {
+          setLoading(true);
           const formData = {
-              name: getValues("name"),
-              description: getValues("description"),
-              location: getValues("location"),
-              country: getValues("country"),
-              image: image,
-              active: getValues("active") || true,
+            name: getValues("name"),
+            description: getValues("description"),
+            location: getValues("location"),
+            country: getValues("country"),
+            image: image,
+            active: getValues("active") || true,
           };
-  
-          try {
-            setLoading(true)
-              const response = await api.post("sites/add", formData);              
-              const successEl = document
-                  .querySelector("#success-notification-content")?.cloneNode(true) as HTMLElement;
-              if (successEl) {
-                  successEl.classList.remove("hidden");
-                  const successMessage = response.data.message || "Registration success!";
-                  const messageElement = successEl.querySelector('.font-medium');
-                  if (messageElement) {
-                      messageElement.textContent = successMessage;
-                  }
-                  
-                  Toastify({
-                      node: successEl,
-                      duration: 3000,
-                      newWindow: true,
-                      close: true,
-                      gravity: "top",
-                      position: "right",
-                      stopOnFocus: true,
-                  }).showToast();
-              }
-              
-              reset();
-              setImageFile(null);
-              setImageUrl("");
-              navigate('/sites')
-          } catch (error: any) {
-              console.error("Registration error:", error);
-              const failedEl = document
-                  .querySelector("#failed-notification-content")?.cloneNode(true) as HTMLElement;
-              if (failedEl) {
-                  failedEl.classList.remove("hidden");
-                  let errorMessage = "An unexpected error occurred. Please try again.";
-                  if (error.response && error.response.data) {
-                      errorMessage = error.response.data.error || errorMessage;
-                  }
-                  const errorMessageElement = failedEl.querySelector('.font-medium');
-                  if (errorMessageElement) {
-                      errorMessageElement.textContent = errorMessage;
-                  }
-              }
-              setLoading(false)
-          }
+
+          const response = await api.post("sites/add", formData);              
+          handleNotification('success', response.data.message || "Site created successfully!");
+          reset();
+          setImageFile(null);
+          setImageUrl("");
+          navigate('/sites');
+        } catch (error: any) {
+          console.error("Registration error:", error);
+          const errorMessage = error.response?.data?.message || "An unexpected error occurred. Please try again.";
+          handleNotification('error', errorMessage);
+        } finally {
+          setLoading(false);
+        }
       }
-  };
+    };
   
   
   return (
@@ -288,12 +254,13 @@ import { LoadingTag } from "@/components/Loading";
         
     )}
   
-      <Notification id="success-notification-content" className="hidden">
-        <div className="font-medium">Registration success!</div>
-      </Notification>
-      <Notification id="failed-notification-content" className="hidden">
-        <div className="font-medium">Registration failed!</div>
-      </Notification>
+      <Notification
+        show={showNotification}
+        type={notificationType}
+        message={notificationMessage}
+        onClose={() => setShowNotification(false)}
+        duration={3000}
+      />
     </>
   );
   

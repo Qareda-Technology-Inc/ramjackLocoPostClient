@@ -6,66 +6,41 @@ import { FormInput } from "@/components/Base/Form";
 import Button from "@/components/Base/Button";
 import clsx from "clsx";
 import api from "@/api/axios";
-import Toastify from 'toastify-js';
 import { LoadingTag } from "@/components/Loading";
 import Notification from "@/components/Base/Notification";
 
 function Main() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [identityNo, setIdentityNo] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationType, setNotificationType] = useState<"success" | "error">("success");
+
+  const handleNotification = (type: "success" | "error", message: string) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+    setShowNotification(true);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Triggered")
     
     if (!identityNo) {
-      showNotification('error', 'Please enter your ID number');
+      handleNotification('error', 'Please enter your ID number');
       return;
     }
 
     try {
       setLoading(true);
-      const response = await api.post('/users/forgot-password', { identityNo });
-
-      if (response.data.success) {
-        showNotification('success', 'Password reset instructions have been sent to your email');
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
-      }
+      const response = await api.post('/auth/forgot-password', { identityNo });
+      handleNotification('success', response.data.message || 'Check your email for password reset instructions');
+      setTimeout(() => navigate('/login'), 3000);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Error processing request';
-      showNotification('error', errorMessage);
+      console.error('Error:', error);
+      handleNotification('error', error.response?.data?.message || 'Please check your ID number and try again');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    const notificationId = type === 'success' ? 
-      '#success-notification-content' : 
-      '#failed-notification-content';
-    
-    const notificationEl = document.querySelector(notificationId);
-    if (notificationEl) {
-      const clonedEl = notificationEl.cloneNode(true) as HTMLElement;
-      clonedEl.classList.remove('hidden');
-      
-      const messageEl = clonedEl.querySelector('.font-medium');
-      if (messageEl) {
-        messageEl.textContent = message;
-      }
-      
-      Toastify({
-        node: clonedEl,
-        duration: 3000,
-        newWindow: true,
-        close: true,
-        gravity: "top",
-        position: "right",
-        stopOnFocus: true,
-      }).showToast();
     }
   };
 
@@ -105,7 +80,7 @@ function Main() {
                       recover your account.
                     </div>
                     <div className="mt-5 text-lg text-white -intro-x text-opacity-70 dark:text-slate-400">
-                      Enter your Employee ID
+                      Manage all your assigned location and track your field progress
                     </div>
                   </div>
                 </div>
@@ -114,22 +89,22 @@ function Main() {
                 <div className="flex h-screen py-5 my-10 xl:h-auto xl:py-0 xl:my-0">
                   <div className="w-full px-5 py-8 mx-auto my-auto bg-white rounded-md shadow-md xl:ml-20 dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-auto">
                     <h2 className="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">
-                      Forgot Password
+                      Recover Password
                     </h2>
-                    <div className="mt-2 text-center intro-x text-slate-400 dark:text-slate-400 xl:hidden">
-                      A few more clicks to recover your account.
+                    <div className="mt-2 text-center intro-x text-slate-400 xl:hidden">
+                      A few more clicks to recover your account. Manage all your
+                      e-commerce accounts in one place
                     </div>
                     <div className="mt-8 intro-x">
                       <FormInput
                         type="text"
                         className="block px-4 py-3 intro-x min-w-full xl:min-w-[350px]"
-                        placeholder="Enter Identity No"
+                        placeholder="Employee ID"
                         value={identityNo}
                         onChange={(e) => setIdentityNo(e.target.value)}
-                        required
                       />
                     </div>
-                    <div className="flex mt-5 intro-x xl:mt-8 text-center xl:text-left">
+                    <div className="mt-5 text-center intro-x xl:mt-8 xl:text-left">
                       <Button
                         type="submit"
                         variant="primary"
@@ -155,20 +130,13 @@ function Main() {
         </form>
       )}
 
-      {/* Notifications */}
-      <Notification id="success-notification-content" className="hidden">
-        <div className="font-medium text-success">Success</div>
-        <div className="text-slate-500 mt-1">
-          Check your email for password reset instructions
-        </div>
-      </Notification>
-
-      <Notification id="failed-notification-content" className="hidden">
-        <div className="font-medium text-danger">Error</div>
-        <div className="text-slate-500 mt-1">
-          Please check your ID number and try again
-        </div>
-      </Notification>
+      <Notification
+        show={showNotification}
+        type={notificationType}
+        message={notificationMessage}
+        onClose={() => setShowNotification(false)}
+        duration={3000}
+      />
     </>
   );
 }

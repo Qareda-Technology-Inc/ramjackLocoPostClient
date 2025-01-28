@@ -4,8 +4,7 @@ import Modal from '@/components/Base/Modal/Modal'; // Assuming you have a Modal 
 import Toastify from "toastify-js";
 import { KPI } from '@/types/kpi';
 import { FormInput, FormLabel } from '@/components/Base/Form';
-import FormPage from '../FormPage';
-import TablePage from '../TablePage';
+import TablePage from './TablePage';
 
 function Main() {
     const [kpi, setKPI] = useState<KPI>({
@@ -19,8 +18,6 @@ function Main() {
         name: '',
         description: '',
         kpi: '',
-        isCompleted: false,
-        comment: ''
     });
 
     const [kpis, setKpis] = useState<KPI[]>([]); // To store fetched KPIs
@@ -63,10 +60,16 @@ function Main() {
                 duration: 3000,
                 gravity: "top",
                 position: "right",
-                style: { background: "blue" },
+                style: { 
+                    background: "white",
+                    border: "2px solid #c2410c",
+                    borderRadius: "5px",
+                    color: "#c2410c"
+                },
             }).showToast();
             setIsKpiModalOpen(false);
             setKPI({ _id: '', description: '', targetValue: 0, actualValue: 0 }); // Reset form
+            window.location.reload(); // Refresh the page to show new changes
         } catch (error) {
             console.error("Error creating KPI:", error);
             Toastify({
@@ -74,7 +77,12 @@ function Main() {
                 duration: 3000,
                 gravity: "top",
                 position: "right",
-                style: { background: "red" },
+                style: { 
+                    background: "white",
+                    border: "2px solid red",
+                    borderRadius: "5px",
+                    color: "red"
+                },
             }).showToast();
         }
     };
@@ -82,16 +90,22 @@ function Main() {
     const handleTaskSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await api.post('/tasks/', task); // Adjust the endpoint as necessary
+            await api.post('/tasks/', task); // Endpont for tastk post
             Toastify({
                 text: "Task created successfully!",
                 duration: 3000,
                 gravity: "top",
                 position: "right",
-                style: { background: "blue" },
+                style: { 
+                    background: "white",
+                    border: "2px solid #c2410c",
+                    borderRadius: "5px",
+                    color: "#c2410c"
+                },
             }).showToast();
             setIsTaskModalOpen(false);
-            setTask({ name: '', description: '', kpi: '', isCompleted: false, comment: '' }); // Reset form
+            setTask({ name: '', description: '', kpi: '' }); // Reset form
+            window.location.reload(); // Refresh the page to show new changes
         } catch (error) {
             console.error("Error creating Task:", error);
             Toastify({
@@ -99,20 +113,72 @@ function Main() {
                 duration: 3000,
                 gravity: "top",
                 position: "right",
-                style: { background: "red" },
+                style: { 
+                    background: "white",
+                    border: "2px solid red",
+                    borderRadius: "5px",
+                    color: "red"
+                },
             }).showToast();
         }
     };
 
+    const handleManageForm = async (data: string) => {
+        try {
+            if(data === "kpi") {
+                console.log("KPI Route")
+            } else {
+                console.log("Task Route")
+            }
+        } catch (error) {
+            console.error("Error managing form:", error);
+        }
+    }
+
     return (
         <>
-        <div className="bg-white p-6 rounded-lg shadow-md max-w-6xl mx-auto mt-10">
+        <div className="bg-white p-6 rounded-lg shadow-md max-w-6xl mx-auto mt-10 intro-y">
             <h2 className="text-2xl font-bold mb-4 text-center">Manage KPIs and Tasks</h2>
-            <div className="flex justify-between mb-4">
-                <button onClick={() => setIsKpiModalOpen(true)} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Create KPI</button>
-                <button onClick={() => setIsTaskModalOpen(true)} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Create Task</button>
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                <div className="w-full">
+                <button
+                    onClick={() => setIsKpiModalOpen(true)}
+                    className="w-full px-4 py-2 bg-[#c2410c] text-white rounded-md hover:bg-[#e2480c]"
+                >
+                    Create KPI
+                </button>
+                </div>
+                <div className="w-full" >
+                <button
+                    onClick={() => handleManageForm("kpi")}
+                    className="w-full px-4 py-2 bg-[#c2410c] text-white rounded-md hover:bg-[#e2480c]"
+                >
+                    Manage KPI
+                </button>
+                </div>
+                <div className="w-full">
+                <button
+                    onClick={() => handleManageForm("task")}
+                    className="w-full px-4 py-2 bg-[#c2410c] text-white rounded-md hover:bg-[#e2480c]"
+                >
+                    Create Task
+                </button>
+                </div>
+                <div className="w-full">
+                <button
+                    onClick={() => setIsTaskModalOpen(true)}
+                    className="w-full px-4 py-2 bg-[#c2410c] text-white rounded-md hover:bg-[#e2480c]"
+                >
+                    Manage Task
+                </button>
+                </div>
             </div>
 
+            {/* Task Table */}
+            <div className="overflow-y-auto max-h-[70vh] intro-y">
+            <TablePage />
+            </div>
+            
             {/* KPI Modal */}
             <Modal isOpen={isKpiModalOpen} onClose={() => setIsKpiModalOpen(false)}>
                 <h3 className="text-xl font-semibold mb-4">KPI Form</h3>
@@ -166,7 +232,7 @@ function Main() {
                         />
                     </div>
                     <div className="flex justify-between">
-                        <button type="submit" className="w-full mt-5 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-orange-300">Submit KPI</button>
+                        <button type="submit" className="w-full mt-5 px-4 py-2 bg-[#c2410c] text-white rounded-md hover:bg-[#e2480c] focus:outline-none focus:ring focus:ring-orange-300">Submit KPI</button>
                         <button type="button" onClick={() => setIsKpiModalOpen(false)} className="ml-2 w-full mt-5 px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400">Cancel</button>
                     </div>
                 </form>
@@ -229,14 +295,13 @@ function Main() {
                         </select>
                     </div>
                     <div className="flex justify-between">
-                        <button type="submit" className="w-full mt-5 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300">Submit Task</button>
+                        <button type="submit" className="w-full mt-5 px-4 py-2 bg-[#c2410c] text-white rounded-md hover:bg-[#e2480c] focus:outline-none focus:ring focus:ring-blue-300">Submit Task</button>
                         <button type="button" onClick={() => setIsTaskModalOpen(false)} className="ml-2 w-full mt-5 px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400">Cancel</button>
                     </div>
                 </form>
             </Modal>
             
         </div>
-        <TablePage />
         </>
     );
 }

@@ -6,51 +6,25 @@ import { FormInput } from "@/components/Base/Form";
 import Button from "@/components/Base/Button";
 import clsx from "clsx";
 import api from "@/api/axios";
-import Toastify from 'toastify-js';
 import { LoadingTag } from "@/components/Loading";
 import Notification from "@/components/Base/Notification";
 
 function Main() {
   const navigate = useNavigate();
-  const { token } = useParams();
-  const [loading, setLoading] = useState(false);
+  const { token } = useParams<{ token: string }>();
   const [formData, setFormData] = useState({
-    newPassword: '',
-    confirmPassword: '',
+    password: '',
+    confirmPassword: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationType, setNotificationType] = useState<"success" | "error">("success");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.newPassword !== formData.confirmPassword) {
-      showNotification('error', 'Passwords do not match');
-      return;
-    }
-
-    if (formData.newPassword.length < 6) {
-      showNotification('error', 'Password must be at least 6 characters long');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await api.post('/users/reset-password', {
-        token,
-        newPassword: formData.newPassword
-      });
-
-      if (response.data.success) {
-        showNotification('success', 'Password has been reset successfully');
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
-      }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Error resetting password';
-      showNotification('error', errorMessage);
-    } finally {
-      setLoading(false);
-    }
+  const handleNotification = (type: "success" | "error", message: string) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+    setShowNotification(true);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,30 +35,26 @@ function Main() {
     }));
   };
 
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    const notificationId = type === 'success' ? 
-      '#success-notification-content' : 
-      '#failed-notification-content';
-    
-    const notificationEl = document.querySelector(notificationId);
-    if (notificationEl) {
-      const clonedEl = notificationEl.cloneNode(true) as HTMLElement;
-      clonedEl.classList.remove('hidden');
-      
-      const messageEl = clonedEl.querySelector('.font-medium');
-      if (messageEl) {
-        messageEl.textContent = message;
-      }
-      
-      Toastify({
-        node: clonedEl,
-        duration: 3000,
-        newWindow: true,
-        close: true,
-        gravity: "top",
-        position: "right",
-        stopOnFocus: true,
-      }).showToast();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      handleNotification('error', 'Passwords do not match');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await api.post(`/auth/reset-password/${token}`, {
+        password: formData.password
+      });
+      handleNotification('success', response.data.message || 'Password reset successful');
+      setTimeout(() => navigate('/login'), 3000);
+    } catch (error: any) {
+      console.error('Error:', error);
+      handleNotification('error', error.response?.data?.message || 'Error resetting password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,11 +90,11 @@ function Main() {
                       src={illustrationUrl}
                     />
                     <div className="mt-10 text-4xl font-medium leading-tight text-white -intro-x">
-                      Reset Your Password <br />
-                      to Continue.
+                      A few more clicks to <br />
+                      reset your password.
                     </div>
                     <div className="mt-5 text-lg text-white -intro-x text-opacity-70 dark:text-slate-400">
-                      Please enter your new password
+                      Manage all your assigned location and track your field progress
                     </div>
                   </div>
                 </div>
@@ -135,30 +105,29 @@ function Main() {
                     <h2 className="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">
                       Reset Password
                     </h2>
-                    <div className="mt-2 text-center intro-x text-slate-400 dark:text-slate-400 xl:hidden">
-                      Please enter your new password to continue.
+                    <div className="mt-2 text-center intro-x text-slate-400 xl:hidden">
+                      A few more clicks to reset your password. Manage all your
+                      e-commerce accounts in one place
                     </div>
                     <div className="mt-8 intro-x">
                       <FormInput
                         type="password"
-                        name="newPassword"
+                        name="password"
                         className="block px-4 py-3 intro-x min-w-full xl:min-w-[350px]"
                         placeholder="New Password"
-                        value={formData.newPassword}
+                        value={formData.password}
                         onChange={handleChange}
-                        required
                       />
                       <FormInput
                         type="password"
                         name="confirmPassword"
                         className="block px-4 py-3 mt-4 intro-x min-w-full xl:min-w-[350px]"
-                        placeholder="Confirm New Password"
+                        placeholder="Confirm Password"
                         value={formData.confirmPassword}
                         onChange={handleChange}
-                        required
                       />
                     </div>
-                    <div className="flex mt-5 intro-x xl:mt-8 text-center xl:text-left">
+                    <div className="mt-5 text-center intro-x xl:mt-8 xl:text-left">
                       <Button
                         type="submit"
                         variant="primary"
@@ -184,20 +153,13 @@ function Main() {
         </form>
       )}
 
-      {/* Notifications */}
-      <Notification id="success-notification-content" className="hidden">
-        <div className="font-medium text-success">Success</div>
-        <div className="text-slate-500 mt-1">
-          Your password has been reset successfully
-        </div>
-      </Notification>
-
-      <Notification id="failed-notification-content" className="hidden">
-        <div className="font-medium text-danger">Error</div>
-        <div className="text-slate-500 mt-1">
-          Please check your input and try again
-        </div>
-      </Notification>
+      <Notification
+        show={showNotification}
+        type={notificationType}
+        message={notificationMessage}
+        onClose={() => setShowNotification(false)}
+        duration={3000}
+      />
     </>
   );
 }

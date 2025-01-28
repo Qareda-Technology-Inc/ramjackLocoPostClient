@@ -11,7 +11,7 @@ import { Site } from "@/types/site";
 import imageUrl from '@/assets/images/logoSingle.png';
 import { useNavigate } from "react-router-dom";
 import { LoadingTag } from "@/components/Loading";
-// import Notification from "@/components/Base/Notification";
+import Notification from "@/components/Base/Notification";
 
 
 function Main() {
@@ -20,8 +20,17 @@ function Main() {
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteConfirmationModal, setDeleteConfirmationModal] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationType, setNotificationType] = useState<"success" | "error">("success");
   const deleteButtonRef = useRef(null);
   const [selectedSite, setSelectedSite] = useState<Site | null>(null);
+
+  const handleNotification = (type: "success" | "error", message: string) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+    setShowNotification(true);
+  };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -39,19 +48,19 @@ function Main() {
   useEffect(() => {
     const fetchSites = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
         const { data } = await api.get("/sites/list", {
           headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-          setLoading(false)
+            Authorization: `Bearer ${token}`
+          }
+        });
         setSites(data);
       } catch (error) {
         console.error(error);
-        setLoading(false)
+        handleNotification('error', 'Failed to fetch sites');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false)
     };
 
     fetchSites();
@@ -80,12 +89,10 @@ function Main() {
       // Remove site from state
       setSites(sites.filter(site => site._id !== selectedSite._id));
       setDeleteConfirmationModal(false);
-      
-      // Show success notification
-      // Notification(true, "Site deleted successfully");
+      handleNotification('success', 'Site deleted successfully');
     } catch (error) {
       console.error("Error deleting site:", error);
-      // Notification(false, "Failed to delete site");
+      handleNotification('error', 'Failed to delete site');
     }
   };
 
@@ -93,7 +100,7 @@ function Main() {
     <> 
     {loading ? (<LoadingTag />) : (
     <>
-      <h2 className="mt-10 text-lg font-medium intro-y">Product List</h2>
+      <h2 className="mt-10 text-lg font-medium intro-y">Site List</h2>
       <div className="grid grid-cols-12 gap-6 mt-5">
         <div className="flex flex-wrap items-center col-span-12 mt-2 intro-y sm:flex-nowrap">
           <Button variant="primary" className="mr-2 shadow-md" onClick={handleAddSite}>
@@ -282,6 +289,14 @@ function Main() {
         </Dialog.Panel>
       </Dialog>
       {/* END: Delete Confirmation Modal */}
+
+      <Notification
+        show={showNotification}
+        type={notificationType}
+        message={notificationMessage}
+        onClose={() => setShowNotification(false)}
+        duration={3000}
+      />
     </>
   );
 }

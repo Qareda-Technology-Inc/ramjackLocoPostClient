@@ -228,7 +228,7 @@ function Main() {
                         />
                       </div>
                       <Button type="submit" variant="primary" className="mt-4">
-                        Change Password
+                        Change Passwords
                       </Button>
                     </form>
                   </div>

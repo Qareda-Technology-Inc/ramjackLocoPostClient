@@ -14,7 +14,7 @@ const menu: MenuItem[] = [
     title: "Employees",
     subMenu: [
       {
-        icon: "Users",
+        icon: "UserSearch",
         pathname: "/employees",
         title: "View All Employees",
       },
@@ -35,7 +35,7 @@ const menu: MenuItem[] = [
         title: "View All sites",
       },
       {
-        icon: "MapPin",
+        icon: "Plus",
         pathname: "/add-site",
         title: "Add Site",
       },
@@ -46,7 +46,7 @@ const menu: MenuItem[] = [
     title: "Assignments",
     subMenu: [
       {
-        icon: "NotebookTabs",
+        icon: "Presentation",
         pathname: "/view-assign",
         title: "View All Assignment",
       },
@@ -58,11 +58,11 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    icon: "Key",
+    icon: "Spline",
     title: "Tasks and KPIs",
     subMenu: [
       {
-        icon: "DatabaseBackup",
+        icon: "View",
         pathname: "/tasks",
         title: "Create Task",
       },
@@ -90,27 +90,33 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    icon: "Bell",
+    icon: "GalleryThumbnails",
+    pathname: "/my-assignments",
+    title: "My Assignments",
+  },
+  {
+    icon: "Calendar",
+    pathname: "/my-tasks",
+    title: "My Tasks",
+  },
+  {
+    icon: "Sparkles",
+    pathname: "/my-kpis",
+    title: "Performance KPI",
+  },
+  
+  "divider",
+  
+  {
+    icon: "BellDot",
     pathname: "/notification",
     title: "Notifications",
   },
   {
-    icon: "Calendar",
-    title: "Assignment",
-    subMenu: [
-      {
-        icon: "Calendar",
-        pathname: "/assignments",
-        title: "Location Assignment",
-      },
-      {
-        icon: "Calendar",
-        pathname: "/task-assignment",
-        title: "Task Assignment",
-      },
-    ],
+    icon: "HelpCircle",
+    pathname: "/support",
+    title: "Support / Help",
   },
-  "divider",
   {
     icon: "Settings",
     title: "Settings",
@@ -126,11 +132,6 @@ const menu: MenuItem[] = [
         title: "Role and Permission Management",
       },
     ],
-  },
-  {
-    icon: "LogOut",
-    pathname: "/login",
-    title: "Logout",
   },
   {
     icon: "Eye",

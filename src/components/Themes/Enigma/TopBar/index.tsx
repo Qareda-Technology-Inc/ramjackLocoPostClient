@@ -1,9 +1,8 @@
-import { useState, Fragment } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import Lucide from "@/components/Base/Lucide";
 import logoUrl from "@/assets/images/logoSingle.png";
 import Breadcrumb from "@/components/Base/Breadcrumb";
-import { FormInput } from "@/components/Base/Form";
 import { Menu, Popover } from "@/components/Base/Headless";
 import _ from "lodash";
 import clsx from "clsx";
@@ -12,21 +11,25 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AppDispatch, RootState } from "@/stores/store";
 import api from "@/api/axios";
+import Notification from "@/components/Base/Notification";
 
 function Main(props: { layout?: "side-menu" }) {
   const navigate = useNavigate();
   const dispatch: AppDispatch = useDispatch();
-  const [searchDropdown, setSearchDropdown] = useState(false);
+  
+  // Notification states
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationType, setNotificationType] = useState<"success" | "error">("success");
 
   const user = useSelector((state: RootState) => state.auth.user);
-
-  const showSearchDropdown = () => {
-    setSearchDropdown(true);
-  };
-  const hideSearchDropdown = () => {
-    setSearchDropdown(false);
-  };
   const token = localStorage.getItem('token');
+
+  const handleNotification = (type: "success" | "error", message: string) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+    setShowNotification(true);
+  };
 
   const handleLogout = async () => {
     try {
@@ -36,18 +39,21 @@ function Main(props: { layout?: "side-menu" }) {
         }
       });
       dispatch(logout());
-      navigate("/login");
+      handleNotification("success", "Successfully logged out.");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
     } catch (error) {
       console.error('Error during logout:', error);
+      handleNotification("error", "Logout failed. Please try again.");
     }
-  }
+  };
 
   const handleViewProfile = () => {
     if (user?._id) {
       navigate(`/profile/${user._id}`);
     }
   };
-
 
   const handleChangePassword = () => {
     navigate('/change-password');
@@ -58,8 +64,8 @@ function Main(props: { layout?: "side-menu" }) {
       <div
         className={clsx([
           "h-[70px] md:h-[65px] z-[51] border-b border-white/[0.08] mt-12 md:mt-0 -mx-3 sm:-mx-8 md:-mx-0 px-3 md:border-b-0 relative md:fixed md:inset-x-0 md:top-0 sm:px-8 md:px-10 md:pt-10 md:bg-gradient-to-b md:from-slate-100 md:to-transparent dark:md:from-darkmode-700",
-          "before:content-[''] before:absolute before:h-[65px] before:inset-0 before:top-0 before:mx-7 before:bg-primary/30 before:mt-3 before:rounded-xl before:hidden before:md:block before:dark:bg-darkmode-600/30",
-          "after:content-[''] after:absolute after:inset-0 after:h-[65px] after:mx-3 after:bg-primary after:mt-5 after:rounded-xl after:shadow-md after:hidden after:md:block after:dark:bg-darkmode-600",
+          "before:content-[''] before:block before:absolute before:h-[65px] before:inset-0 before:top-0 before:mx-7 before:bg-primary/30 before:mt-3 before:rounded-xl before:hidden before:md:block before:dark:bg-darkmode-600/30",
+          "after:content-[''] after:block after:absolute after:inset-0 after:h-[65px] after:mx-3 after:bg-primary after:mt-5 after:rounded-xl after:shadow-md after:hidden after:md:block after:dark:bg-darkmode-600",
         ])}
       >
         <div className="flex items-center h-full">
@@ -93,36 +99,14 @@ function Main(props: { layout?: "side-menu" }) {
             light
             className={clsx([
               "h-[45px] md:ml-10 md:border-l border-white/[0.08] dark:border-white/[0.08] mr-auto -intro-x",
-              
             ])}
           >
-            <Breadcrumb.Link to="/">Application</Breadcrumb.Link>
+            <Breadcrumb.Link to="/">RTS</Breadcrumb.Link>
             <Breadcrumb.Link to="/" active={true}>
               Dashboard
             </Breadcrumb.Link>
           </Breadcrumb>
           {/* END: Breadcrumb */}
-
-          {/* BEGIN: Search */}
-          <div className="relative mr-3 intro-x sm:mr-6">
-            <div className="relative hidden sm:block">
-              <FormInput
-                type="text"
-                className="border-transparent w-56 shadow-none rounded-full bg-slate-200 pr-8 transition-[width] duration-300 ease-in-out focus:border-transparent focus:w-72 dark:bg-darkmode-400"
-                placeholder="Search..."
-                onFocus={showSearchDropdown}
-                onBlur={hideSearchDropdown}
-              />
-              <Lucide
-                icon="Search"
-                className="absolute inset-y-0 right-0 w-5 h-5 my-auto mr-3 text-slate-600 dark:text-slate-500"
-              />
-            </div>
-            <a className="relative text-white/70 sm:hidden" href="">
-              <Lucide icon="Search" className="w-5 h-5 dark:text-slate-500" />
-            </a>
-          </div>
-          {/* END: Search */}
 
           {/* BEGIN: Notifications */}
           <Popover className="mr-4 intro-x sm:mr-6">
@@ -136,7 +120,6 @@ function Main(props: { layout?: "side-menu" }) {
             </Popover.Button>
             <Popover.Panel className="w-[280px] sm:w-[350px] p-5 mt-2">
               <div className="mb-5 font-medium">Notifications</div>
-              
             </Popover.Panel>
           </Popover>
           {/* END: Notifications */}
@@ -175,6 +158,15 @@ function Main(props: { layout?: "side-menu" }) {
           {/* END: Account Menu */}
         </div>
       </div>
+
+      {/* Notification Component */}
+      <Notification
+        show={showNotification}
+        type={notificationType}
+        message={notificationMessage}
+        onClose={() => setShowNotification(false)}
+        duration={3000}
+      />
     </>
   );
 }

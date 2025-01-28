@@ -4,14 +4,12 @@ import {
 } from "@/components/Base/Form";
 import Button from "@/components/Base/Button";
 import Notification from "@/components/Base/Notification";
-import Toastify from "toastify-js";
 import clsx from "clsx";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import api from "@/api/axios";
-import { isAxiosError } from "axios";
 import Lucide from "@/components/Base/Lucide";
 import { useNavigate } from 'react-router-dom';
 import { LoadingTag } from "@/components/Loading";
@@ -21,6 +19,9 @@ function Main() {
   const [imageFile, setImageFile] = useState(null);
   const [image, setImage] = useState('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationType, setNotificationType] = useState<"success" | "error">("success");
   const schema = yup
     .object({
       firstName: yup.string().required().min(2),
@@ -71,25 +72,18 @@ function Main() {
     previewFiles(file);
     };
 
+  const handleNotification = (type: "success" | "error", message: string) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+    setShowNotification(true);
+  };
+
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const result = await trigger();
 
     if (!result) {
-      const notificationElements = document.querySelectorAll("#failed-notification-content");
-      if (notificationElements.length > 0) {
-        const failedEl = notificationElements[0].cloneNode(true) as HTMLElement;
-        failedEl.classList.remove("hidden");
-        Toastify({
-          node: failedEl,
-          duration: 3000,
-          newWindow: true,
-          close: true,
-          gravity: "top",
-          position: "right",
-          stopOnFocus: true,
-        }).showToast();
-      }
+      handleNotification('error', 'Please check the form and try again.');
     } else {
       try {
         setLoading(true);
@@ -107,58 +101,17 @@ function Main() {
           },
           image: image,
         };
-        
-        console.log('Submitting user data:', formData);
 
         const response = await api.post("users/add", formData);
-        console.log('Server response:', response.data);
-
         if (response.data.success) {
-          const successElements = document.querySelectorAll("#success-notification-content");
-          if (successElements.length > 0) {
-            const successEl = successElements[0].cloneNode(true) as HTMLElement;
-            successEl.classList.remove("hidden");
-            
-            const messageElement = successEl.querySelector('.font-medium');
-            if (messageElement) {
-              messageElement.textContent = response.data.message || "User created successfully!";
-            }
-
-            Toastify({
-              node: successEl,
-              duration: 5000,
-              newWindow: true,
-              close: true,
-              gravity: "top",
-              position: "right",
-              stopOnFocus: true,
-            }).showToast();
-
-            reset(); // Clear form inputs
-            navigate('/employees');
-          }
+          handleNotification('success', response.data.message || "User created successfully!");
+          reset(); // Clear form inputs
+          navigate('/employees');
         }
       } catch (error: any) {
         console.error('Error creating user:', error);
         const errorMessage = error.response?.data?.message || 'Error creating user';
-        
-        const failedEl = document.querySelector("#failed-notification-content");
-        if (failedEl) {
-          const messageEl = failedEl.querySelector('.font-medium');
-          if (messageEl) {
-            messageEl.textContent = errorMessage;
-          }
-          
-          Toastify({
-            node: failedEl.cloneNode(true),
-            duration: 5000,
-            newWindow: true,
-            close: true,
-            gravity: "top",
-            position: "right",
-            stopOnFocus: true,
-          }).showToast();
-        }
+        handleNotification('error', errorMessage);
       } finally {
         setLoading(false);
       }
@@ -412,21 +365,13 @@ function Main() {
     )}
 
       {/* Notifications */}
-      <Notification id="success-notification-content" className="hidden">
-        <div className="font-medium text-success">Registration Successful!</div>
-        <div className="text-slate-500 mt-1">
-          User created successfully. Login credentials have been sent to their email.
-        </div>
-        <div className="text-slate-500 mt-1">
-          Default password format: ID@firstname (lowercase)
-        </div>
-      </Notification>
-      <Notification id="failed-notification-content" className="hidden">
-        <div className="font-medium text-danger">Registration Failed</div>
-        <div className="text-slate-500 mt-1">
-          Please check the form and try again.
-        </div>
-      </Notification>
+      <Notification
+        show={showNotification}
+        type={notificationType}
+        message={notificationMessage}
+        onClose={() => setShowNotification(false)}
+        duration={3000}
+      />
     </>
   );
 }
