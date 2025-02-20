@@ -158,7 +158,7 @@ function Main() {
                 </div>
                 <div className="w-full">
                 <button
-                    onClick={() => handleManageForm("task")}
+                    onClick={() => setIsTaskModalOpen(true)}
                     className="w-full px-4 py-2 bg-[#c2410c] text-white rounded-md hover:bg-[#e2480c]"
                 >
                     Create Task
@@ -166,7 +166,7 @@ function Main() {
                 </div>
                 <div className="w-full">
                 <button
-                    onClick={() => setIsTaskModalOpen(true)}
+                    onClick={() => handleManageForm("task")}
                     className="w-full px-4 py-2 bg-[#c2410c] text-white rounded-md hover:bg-[#e2480c]"
                 >
                     Manage Task

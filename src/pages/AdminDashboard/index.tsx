@@ -1,7 +1,6 @@
 import _ from "lodash";
 import clsx from "clsx";
-import { useState, useEffect } from "react";
-import Button from "@/components/Base/Button";
+import { useState, useEffect, useMemo } from "react";
 import { FormInput } from "@/components/Base/Form";
 import Lucide from "@/components/Base/Lucide";
 import Litepicker from "@/components/Base/Litepicker";
@@ -14,11 +13,13 @@ import {User} from "@/types/auth";
 import {Site} from "@/types/site";
 import api from "@/api/axios";
 import { Assignment } from "@/types/assignment";
+import imageUrl from '@/assets/images/logoSingle.png';
 
 function Main() {
   const token = localStorage.getItem("token");
 
   const [employees, setEmployees] = useState<User[]>([]);
+  const [employeesTag, setEmployeesTag] = useState<User[]>([]);
   const [sites, setSites] = useState<Site[]>();
   const [assignments, setAssignments] = useState<Assignment[]>();
 
@@ -27,12 +28,15 @@ function Main() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const employeeResponse = await api.get("/users/list", {
+        const { data } = await api.get('/users/list', {
           headers: {
             Authorization: `Bearer ${token}`,
-          }
+          },
         });
-        setEmployees(employeeResponse.data);
+        const filteredEmployees = data.filter((employee: User) => employee.currentSite);
+        setEmployeesTag(filteredEmployees);
+        setEmployees(data);
+        console.log("Tags", filteredEmployees)
 
         const siteResponse = await api.get("/sites/list", {
           headers: {
@@ -46,6 +50,7 @@ function Main() {
             Authorization: `Bearer ${token}`,
           }
         });
+
         setAssignments(assignmentResponse.data);
 
       } catch (error) {
@@ -54,6 +59,34 @@ function Main() {
     }
     fetchData();
   }, [token])
+
+  // ✅ Native JavaScript function to calculate days difference
+  const getDaysDifference = (dueDate: Date) => {
+    const today = new Date();
+    const due = new Date(dueDate); 
+    const diffTime = due.getTime() - today.getTime(); 
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+  };
+
+   // ✅ Categorize assignments
+    const { urgent, warning, normal, } = useMemo(() => {
+      let urgent = 0, warning = 0, normal = 0;
+
+      assignments?.forEach((assignment: any) => {
+        const daysLeft = getDaysDifference(assignment.endDate);
+
+        if (daysLeft <= 3) urgent++;      // 🔴 High Priority (Urgent)
+        else if (daysLeft <= 7) warning++; // 🟡 Medium Priority (Warning)
+        else normal++;                     // 🔵 Low Priority (Normal)
+      });
+
+      return { urgent, warning, normal };
+    }, [assignments]);
+
+  const totalAssignments = assignments?.length || 0;
+  const urgentPercent = totalAssignments > 0 ? ((urgent / totalAssignments) * 100).toFixed(1) : 0;
+  const warningPercent = totalAssignments > 0 ? ((warning / totalAssignments) * 100).toFixed(1) : 0;
+  const normalPercent = totalAssignments > 0 ? ((normal / totalAssignments) * 100).toFixed(1) : 0;
 
   return (
     <div className="grid grid-cols-12 gap-6">
@@ -175,65 +208,22 @@ function Main() {
           </div>
           {/* END: General Report */}
           {/* BEGIN: Employee Distribution */}
-          <div className="col-span-12 mt-8 lg:col-span-8">
+          <div className="col-span-12 mt-8 lg:col-span-14">
             <div className="items-center block h-10 intro-y sm:flex">
               <h2 className="mr-5 text-lg font-medium truncate">
                 Employees distribution across sites
               </h2>
-              <div className="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
-                <Lucide
-                  icon="Calendar"
-                  className="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
-                />
-                <Litepicker
-                  value={salesReportFilter}
-                  onChange={(e) => {
-                    setSalesReportFilter(e.target.value);
-                  }}
-                  options={{
-                    autoApply: false,
-                    singleMode: false,
-                    numberOfColumns: 2,
-                    numberOfMonths: 2,
-                    showWeekNumbers: true,
-                    dropdowns: {
-                      minYear: 1990,
-                      maxYear: null,
-                      months: true,
-                      years: true,
-                    },
-                  }}
-                  className="pl-10 sm:w-56 !box"
-                />
-              </div>
             </div>
             <div className="p-5 mt-12 intro-y box sm:mt-5">
               <div className="flex flex-col md:flex-row md:items-center">
                 <div className="flex">
                   <div>
                     <div className="text-lg font-medium text-primary dark:text-slate-300 xl:text-xl">
-                      Countries
+                      Employees - Sites - Countries
                     </div>
-                    <div className="mt-0.5 text-slate-500">Sites</div>
                   </div>
                 </div>
-                <Menu className="mt-5 md:ml-auto md:mt-0">
-                  <Menu.Button
-                    as={Button}
-                    variant="outline-secondary"
-                    className="font-normal"
-                  >
-                    Filter by Country
-                    <Lucide icon="ChevronDown" className="w-4 h-4 ml-2" />
-                  </Menu.Button>
-                  <Menu.Items className="w-40 h-32 overflow-y-auto">
-                    <Menu.Item>Australia</Menu.Item>
-                    <Menu.Item>Ghana</Menu.Item>
-                    <Menu.Item>Guinea</Menu.Item>
-                    <Menu.Item>Mali</Menu.Item>
-                    <Menu.Item>Singapore</Menu.Item>
-                  </Menu.Items>
-                </Menu>
+                
               </div>
               <div
                 className={clsx([
@@ -248,33 +238,6 @@ function Main() {
           </div>
           {/* END: Employee distribution */}
           
-          {/* BEGIN: Historical Assignment */}
-          <div className="col-span-12 mt-8 sm:col-span-6 lg:col-span-4">
-            <div className="flex items-center h-10 intro-y">
-              <h2 className="mr-5 text-lg font-medium truncate">
-                Historical Assignment Report
-              </h2>
-              <a href="" className="ml-auto truncate text-primary">
-                Show More
-              </a>
-            </div>
-            <div className="p-5 mt-5 intro-y box">
-              <div className="mt-3">
-                <ReportDonutChart height={213} />
-              </div>
-              <div className="mx-auto mt-8 w-52 sm:w-auto">
-                    <div className="flex items-center mt-4">
-                      {/* <div className={`w-2 h-2 mr-3 rounded-full ${
-                        index === 0 ? 'bg-primary' : 
-                        index === 1 ? 'bg-pending' : 'bg-warning'
-                      }`}></div> */}
-                      <span className="truncate">test 1</span>
-                      <span className="ml-auto font-medium">percent 1%</span>
-                    </div>
-              </div>
-            </div>
-          </div>
-          {/* END: Historical Assignment */}
           {/* BEGIN: Official Site */}
           <div className="col-span-12 mt-6 xl:col-span-14">
             <div className="items-center block h-10 intro-y sm:flex">
@@ -304,9 +267,11 @@ function Main() {
           {/* END: Official site */}
         </div>
       </div>
+
       <div className="col-span-12 2xl:col-span-3">
         <div className="pb-10 -mb-10 2xl:border-l">
           <div className="grid grid-cols-12 2xl:pl-6 gap-x-6 2xl:gap-x-0 gap-y-6">
+
             {/* BEGIN: Assignment Tag */}
             <div className="col-span-12 mt-3 md:col-span-6 xl:col-span-4 2xl:col-span-12 2xl:mt-8">
               <div className="flex items-center h-10 intro-x">
@@ -314,45 +279,55 @@ function Main() {
                   Assignment Tags
                 </h2>
               </div>
-              {/* Approaching */}
-              {/* <div className="mt-5">
-                {approaching.length === 0 ? (
-                  <div className="text-center text-gray-500 py-4">No approaching assignments</div>
-                ) : (
-                  <>
-                    {approaching.map((employee: User, index: number) => (
-                      <div key={index} className="intro-x">
-                        <div className="flex items-center px-5 py-3 mb-3 box zoom-in">
-                          <div className="flex-none w-10 h-10 overflow-hidden rounded-full bg-slate-200 flex items-center justify-center">
-                            <Lucide icon="User" className="w-5 h-5" />
+                <div className="flex items-center h-10 intro-x">
+                  <a href="" className="ml-auto truncate text-primary">
+                    Show More
+                  </a>
+                </div>
+                <div className="mt-5 relative before:block before:absolute before:w-px before:h-[85%] before:bg-slate-200 before:dark:bg-darkmode-400 before:ml-5 before:mt-5">
+                  {employeesTag.length > 0 ? (
+                    employeesTag.map((employee, index) => (
+                      <div key={index} className="relative flex items-center mb-3 intro-x">
+                        <div className="before:block before:absolute before:w-20 before:h-px before:bg-slate-200 before:dark:bg-darkmode-400 before:mt-5 before:ml-5">
+                          <div className="flex-none w-10 h-10 overflow-hidden rounded-full image-fit">
+                            <img alt="Profile" src={employee.image ? employee.image : imageUrl} />
                           </div>
-                          <div className="ml-4 mr-auto">
+                        </div>
+                        <div className="flex-1 px-5 py-3 ml-4 box zoom-in">
+                          <div className="flex items-center">
                             <div className="font-medium">{employee.firstName} {employee.lastName}</div>
-                            <div className="text-slate-500 text-xs mt-0.5">
-                              {new Date(employee.assignment?.endDate).toLocaleDateString()}
+                            <div className="ml-auto text-xs text-slate-500">{employee.currentSite?.country}</div>
+                            <div className="w-10 h-10 ml-1 overflow-hidden rounded-full image-fit">
+                              <img alt="Profile" src={employee.currentSite?.image ? employee.currentSite.image : imageUrl} />
                             </div>
                           </div>
-                          <div className="text-warning">
-                            Ending Soon
+                          <div className="mt-1 text-slate-500">
+                            Currently located at{" "}
+                            <a className="text-primary" href="">
+                              {`${employee.currentSite?.name} - ${employee.currentSite?.location}` || "Unknown"}
+                            </a>{" "}
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </>
-                )}
-                
-                <a
-                  href=""
-                  className="block w-full py-3 text-center border border-dotted rounded-md intro-x border-slate-400 dark:border-darkmode-300 text-slate-500"
-                >
-                  View More
-                </a>
-              </div> */}
-              {/* Approaching end */}
+                    ))
+                  ) : (
+                    <div className="flex items-center mb-3 intro-x">
+                      <div className="before:block before:absolute before:w-20 before:h-px before:bg-slate-200 before:dark:bg-darkmode-400 before:mt-5 before:ml-5">
+                        <div className="flex-none w-10 h-10 overflow-hidden rounded-full image-fit">
+                          <img alt="Default" src={imageUrl} />
+                        </div>
+                      </div>
+                      <div className="flex-1 px-5 py-3 ml-4 box zoom-in">
+                        <div className="font-medium">No employees is Tagged.</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
             </div>
             {/* END: Assignment Tag */}
-            {/* BEGIN:Assignment Ending */}
-            <div className="col-span-12 mt-3 md:col-span-6 xl:col-span-4 2xl:col-span-12 2xl:mt-8">
+
+          {/* BEGIN:Assignment Ending */}
+          <div className="col-span-12 mt-3 md:col-span-6 xl:col-span-4 2xl:col-span-12 2xl:mt-8">
                 <div className="flex items-center h-10 intro-y">
                   <h2 className="mr-5 text-lg font-medium truncate">
                     Assignment Ending soon
@@ -366,25 +341,55 @@ function Main() {
                     <ReportPieChart height={213} />
                   </div>
                   <div className="mx-auto mt-8 w-52 sm:w-auto">
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 mr-3 rounded-full bg-primary"></div>
-                      <span className="truncate">2nd Quarter</span>
-                      <span className="ml-auto font-medium">62%</span>
-                    </div>
-                    <div className="flex items-center mt-4">
-                      <div className="w-2 h-2 mr-3 rounded-full bg-pending"></div>
-                      <span className="truncate">December</span>
-                      <span className="ml-auto font-medium">33%</span>
-                    </div>
-                    <div className="flex items-center mt-4">
-                      <div className="w-2 h-2 mr-3 rounded-full bg-warning"></div>
-                      <span className="truncate">January</span>
-                      <span className="ml-auto font-medium">10%</span>
-                    </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 mr-3 rounded-full bg-primary"></div>
+                    <span className="truncate">Urgent (1-3 days)</span> 
+                    <span className="ml-auto font-medium">{urgentPercent}%</span>
+                  </div>
+                  <div className="flex items-center mt-4">
+                    <div className="w-2 h-2 mr-3 rounded-full bg-pending"></div>
+                    <span className="truncate">Warning (4-7 days)</span> 
+                    <span className="ml-auto font-medium">{warningPercent}%</span>
+                  </div>
+                  <div className="flex items-center mt-4">
+                    <div className="w-2 h-2 mr-3 rounded-full bg-warning"></div>
+                    <span className="truncate">Normal (7 days)</span> 
+                    <span className="ml-auto font-medium">{normalPercent}%</span>
                   </div>
                 </div>
-              </div>
+
+                </div>
+          </div>
           {/* END: Assignment Ending */}
+
+          {/* BEGIN: Historical Assignment */}
+          <div className="col-span-12 mt-3 md:col-span-6 xl:col-span-4 2xl:col-span-12 2xl:mt-8">
+            <div className="flex items-center h-10 intro-y">
+              <h2 className="mr-5 text-lg font-medium truncate">
+                Historical Assignment Report
+              </h2>
+              <a href="" className="ml-auto truncate text-primary">
+                Show More
+              </a>
+            </div>
+            <div className="p-5 mt-5 intro-y box">
+              <div className="mt-3">
+                <ReportDonutChart height={213} />
+              </div>
+              <div className="mx-auto mt-8 w-52 sm:w-auto">
+                    <div className="flex items-center mt-4">
+                      {/* <div className={`w-2 h-2 mr-3 rounded-full ${
+                        index === 0 ? 'bg-primary' : 
+                        index === 1 ? 'bg-pending' : 'bg-warning'
+                      }`}></div> */}
+                      <span className="truncate">test 1</span>
+                      <span className="ml-auto font-medium">percent 1%</span>
+                    </div>
+              </div>
+            </div>
+          </div>
+          {/* END: Historical Assignment */}
+          
             
           </div>
         </div>

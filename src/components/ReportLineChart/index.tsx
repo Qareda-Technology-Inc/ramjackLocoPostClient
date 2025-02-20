@@ -1,10 +1,15 @@
 import Chart from "@/components/Base/Chart";
+import { useEffect, useState, useMemo } from "react";
 import { ChartData, ChartOptions } from "chart.js/auto";
 import { getColor } from "@/utils/colors";
 import { selectColorScheme } from "@/stores/colorSchemeSlice";
 import { selectDarkMode } from "@/stores/darkModeSlice";
 import { useAppSelector } from "@/stores/hooks";
-import { useMemo } from "react";
+import api from "@/api/axios";
+import { Site } from "@/types/site";
+import { Menu } from "@/components/Base/Headless";
+import Button  from "@/components/Base/Button";
+import Lucide  from "@/components/Base/Lucide";
 
 interface MainProps extends React.ComponentPropsWithoutRef<"canvas"> {
   width?: number | "auto";
@@ -12,113 +17,107 @@ interface MainProps extends React.ComponentPropsWithoutRef<"canvas"> {
 }
 
 function Main({ width = "auto", height = "auto", className = "" }: MainProps) {
-  const props = {
-    width: width,
-    height: height,
-    className: className,
-  };
+  const [siteData, setSiteData] = useState<Site[]>([]);
+  const [filterType, setFilterType] = useState<string>("all");
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get("/sites/list", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setSiteData(response.data);
+      } catch (error) {
+        console.error("Error Fetching Data", error);
+      }
+    };
+    fetchData();
+  }, [token]);
+
+  const filteredData = useMemo(() => {
+    if (filterType === "site") {
+      return siteData;
+    } else if (filterType === "country") {
+      return siteData.reduce<Record<string, number>>((acc, site) => {
+        const country = site.country || "Unknown";
+        acc[country] = (acc[country] || 0) + site.employees.length;
+        return acc;
+      }, {});
+    }
+    return siteData;
+  }, [siteData, filterType]);
+
+  const labels = filterType === "country" ? Object.keys(filteredData) : siteData.map(site => site.name);
+  const employeeCounts = filterType === "country" ? Object.values(filteredData) : siteData.map(site => site.employees.length);
+
   const colorScheme = useAppSelector(selectColorScheme);
   const darkMode = useAppSelector(selectDarkMode);
 
-  const data: ChartData = useMemo(() => {
-    return {
-      labels: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      datasets: [
-        {
-          label: "# of Votes",
-          data: [0, 200, 250, 200, 700, 550, 650, 1050, 950, 1100, 900, 1200],
-          borderWidth: 2,
-          borderColor: colorScheme ? getColor("primary", 0.8) : "",
-          backgroundColor: "transparent",
-          pointBorderColor: "transparent",
-          tension: 0.4,
-        },
-        {
-          label: "# of Votes",
-          data: [0, 300, 400, 560, 320, 600, 720, 850, 690, 805, 1200, 1010],
-          borderWidth: 2,
-          borderDash: [2, 2],
-          borderColor: darkMode
-            ? getColor("slate.400", 0.6)
-            : getColor("slate.400"),
-          backgroundColor: "transparent",
-          pointBorderColor: "transparent",
-          tension: 0.4,
-        },
-      ],
-    };
-  }, [colorScheme, darkMode]);
+  const data: ChartData = useMemo(() => ({
+    labels: labels,
+    datasets: [
+      {
+        label: "Employees",
+        data: employeeCounts,
+        borderWidth: 2,
+        borderColor: colorScheme ? getColor("primary", 0.8) : "",
+        backgroundColor: "transparent",
+        pointBorderColor: "transparent",
+        tension: 0.4,
+      },
+    ],
+  }), [labels, employeeCounts, colorScheme]);
 
-  const options: ChartOptions = useMemo(() => {
-    return {
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false,
-        },
+  const options: ChartOptions = useMemo(() => ({
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: {
+        ticks: { font: { size: 12 }, color: getColor("slate.500", 0.8) },
+        grid: { display: false },
+        border: { display: false },
       },
-      scales: {
-        x: {
-          ticks: {
-            font: {
-              size: 12,
-            },
-            color: getColor("slate.500", 0.8),
-          },
-          grid: {
-            display: false,
-          },
-          border: {
-            display: false,
-          },
+      y: {
+        ticks: {
+          font: { size: 12 },
+          color: getColor("slate.500", 0.8),
+          callback: (value) => value,
         },
-        y: {
-          ticks: {
-            font: {
-              size: 12,
-            },
-            color: getColor("slate.500", 0.8),
-            callback: function (value) {
-              return "$" + value;
-            },
-          },
-          grid: {
-            color: darkMode
-              ? getColor("slate.500", 0.3)
-              : getColor("slate.300"),
-          },
-          border: {
-            dash: [2, 2],
-            display: false,
-          },
-        },
+        grid: { color: darkMode ? getColor("slate.500", 0.3) : getColor("slate.300") },
+        border: { dash: [2, 2], display: false },
       },
-    };
-  }, [colorScheme, darkMode]);
+    },
+  }), [colorScheme, darkMode]);
 
   return (
-    <Chart
-      type="line"
-      width={props.width}
-      height={props.height}
-      data={data}
-      options={options}
-      className={props.className}
-    />
+    <div>
+      <div className="mb-4 flex gap-4 justify-center">
+        <Menu>
+          <Menu.Button as={Button} variant="outline-secondary" className="font-normal w-40">
+            Filter by {filterType === "site" ? "Site" : "Country"}
+            <Lucide icon="ChevronDown" className="w-4 h-4 ml-2" />
+          </Menu.Button>
+          <Menu.Items className="w-40 h-32 overflow-y-auto">
+            <Menu.Item onClick={() => setFilterType("site")}>
+              By Site
+            </Menu.Item>
+            <Menu.Item onClick={() => setFilterType("country")}>
+              By Country
+            </Menu.Item>
+          </Menu.Items>
+        </Menu>
+      </div>
+      <Chart
+        type="line"
+        width={width}
+        height={height}
+        data={data}
+        options={options}
+        className={className}
+      />
+    </div>
   );
 }
 
-export default Main; 
+export default Main;
