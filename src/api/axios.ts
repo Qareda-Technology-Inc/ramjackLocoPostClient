@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://192.168.0.100:2025/api',
-  // baseURL: "https://rjlserver.onrender.com/api",
+  // baseURL: 'http://192.168.0.100:2025/api',
+  baseURL: "https://rjlserver.onrender.com/api",
   headers: {
     'Content-Type': 'application/json'
   }
