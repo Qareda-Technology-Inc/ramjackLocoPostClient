@@ -173,7 +173,7 @@ function Main() {
                     />
                   </div>
                   <div className="mt-3 text-center lg:ml-2 lg:mr-auto lg:text-left lg:mt-0">
-                    <a href="#" className="font-medium" onClick={() => viewAssignment(assignment)}>
+                    <a href="/" className="font-medium" onClick={() => viewAssignment(assignment)}>
                       {assignment?.site?.name} &gt; {assignment?.site?.location} &gt; {assignment?.site?.country} 
                     </a>
                     <div className="text-slate-500 text-xs mt-0.5">
@@ -185,29 +185,29 @@ function Main() {
                       <strong>Remaining Time: </strong>{calculateRemainingTime(assignment?.endDate.toString())}
                     </div>
                   </div>
-                  <div className="flex mt-4 lg:mt-0">
+                  <div className="flex lg:flex-col mt-4 lg:mt-0 sm:flex-row md:flex-row">
                     <Button 
                       variant="primary" 
-                      className="px-2 py-1 mr-2" 
+                      className="px-2 py-1 mx-2 mb-1" 
                       onClick={() => viewAssignment(assignment)}
                     >
-                      <Lucide icon="Eye" className="w-4 h-4 mr-1" />
+                      <Lucide icon="Eye" className="w-3 h-3 mr-1" />
                       View
                     </Button>
                     <Button 
                       variant="outline-secondary" 
-                      className="px-2 py-1 mr-2" 
+                      className="px-2 py-1 mx-2 mb-1" 
                       onClick={() => editAssignment(assignment._id)}
                     >
-                      <Lucide icon="Pencil" className="w-4 h-4 mr-1" />
+                      <Lucide icon="Pencil" className="w-3 h-3 mr-1" />
                       Edit
                     </Button>
                     <Button 
                       variant="danger" 
-                      className="px-2 py-1" 
+                      className="px-2 py-1 mx-2 mb-1" 
                       onClick={() => deleteAssignment(assignment._id)}
                     >
-                      <Lucide icon="Trash" className="w-4 h-4 mr-1" />
+                      <Lucide icon="Trash" className="w-3 h-3 mr-1" />
                       Delete
                     </Button>
                   </div>

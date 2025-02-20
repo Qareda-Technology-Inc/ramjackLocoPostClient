@@ -1,14 +1,11 @@
-import _ from "lodash";
 import clsx from "clsx";
 import { useState, useEffect, useMemo } from "react";
 import { FormInput } from "@/components/Base/Form";
 import Lucide from "@/components/Base/Lucide";
-import Litepicker from "@/components/Base/Litepicker";
 import ReportDonutChart from "@/components/ReportDonutChart";
 import ReportLineChart from "@/components/ReportLineChart";
 import ReportPieChart from "@/components/ReportPieChart";
 import LeafletMap from "@/components/LeafletMap";
-import { Menu } from "@/components/Base/Headless";
 import {User} from "@/types/auth";
 import {Site} from "@/types/site";
 import api from "@/api/axios";
@@ -83,10 +80,16 @@ function Main() {
       return { urgent, warning, normal };
     }, [assignments]);
 
-  const totalAssignments = assignments?.length || 0;
+  const totalAssignments = assignments?.length ?? 0;
   const urgentPercent = totalAssignments > 0 ? ((urgent / totalAssignments) * 100).toFixed(1) : 0;
   const warningPercent = totalAssignments > 0 ? ((warning / totalAssignments) * 100).toFixed(1) : 0;
   const normalPercent = totalAssignments > 0 ? ((normal / totalAssignments) * 100).toFixed(1) : 0;
+
+  const approvedPercent = (assignments?.filter((a) => a.isApproved).length ?? 0) / totalAssignments * 100;
+  const completedPercent = (assignments?.filter((a) => a.isCompleted).length ?? 0) / totalAssignments * 100;
+  const pendingPercent = 100 - (approvedPercent + completedPercent);
+
+  
 
   return (
     <div className="grid grid-cols-12 gap-6">
@@ -280,14 +283,14 @@ function Main() {
                 </h2>
               </div>
                 <div className="flex items-center h-10 intro-x">
-                  <a href="" className="ml-auto truncate text-primary">
+                  <a href="/" className="ml-auto truncate text-primary">
                     Show More
                   </a>
                 </div>
                 <div className="mt-5 relative before:block before:absolute before:w-px before:h-[85%] before:bg-slate-200 before:dark:bg-darkmode-400 before:ml-5 before:mt-5">
                   {employeesTag.length > 0 ? (
-                    employeesTag.map((employee, index) => (
-                      <div key={index} className="relative flex items-center mb-3 intro-x">
+                    employeesTag.map((employee) => (
+                      <div key={employee.id} className="relative flex items-center mb-3 intro-x">
                         <div className="before:block before:absolute before:w-20 before:h-px before:bg-slate-200 before:dark:bg-darkmode-400 before:mt-5 before:ml-5">
                           <div className="flex-none w-10 h-10 overflow-hidden rounded-full image-fit">
                             <img alt="Profile" src={employee.image ? employee.image : imageUrl} />
@@ -303,9 +306,11 @@ function Main() {
                           </div>
                           <div className="mt-1 text-slate-500">
                             Currently located at{" "}
-                            <a className="text-primary" href="">
-                              {`${employee.currentSite?.name} - ${employee.currentSite?.location}` || "Unknown"}
-                            </a>{" "}
+                            <a className="text-primary" href="/">
+                              {employee.currentSite
+                                ? `${employee.currentSite.name} - ${employee.currentSite.location}`
+                                : "Unknown"}
+                            </a>
                           </div>
                         </div>
                       </div>
@@ -328,37 +333,33 @@ function Main() {
 
           {/* BEGIN:Assignment Ending */}
           <div className="col-span-12 mt-3 md:col-span-6 xl:col-span-4 2xl:col-span-12 2xl:mt-8">
-                <div className="flex items-center h-10 intro-y">
-                  <h2 className="mr-5 text-lg font-medium truncate">
-                    Assignment Ending soon
-                  </h2>
-                  <a href="" className="ml-auto truncate text-primary">
-                    Show More
-                  </a>
-                </div>
-                <div className="p-5 mt-5 intro-y box">
-                  <div className="mt-3">
+            <div className="flex items-center h-10 intro-y">
+              <h2 className="mr-5 text-lg font-medium truncate">
+                Assignment Ending soon
+              </h2>
+            </div>
+            <div className="p-5 mt-5 intro-y box">
+              <div className="mt-3">
                     <ReportPieChart height={213} />
-                  </div>
-                  <div className="mx-auto mt-8 w-52 sm:w-auto">
+              </div>
+              <div className="mx-auto mt-8 w-52 sm:w-auto">
                   <div className="flex items-center">
-                    <div className="w-2 h-2 mr-3 rounded-full bg-primary"></div>
+                    <div className="w-2 h-2 mr-3 rounded-full bg-danger"></div>
                     <span className="truncate">Urgent (1-3 days)</span> 
                     <span className="ml-auto font-medium">{urgentPercent}%</span>
                   </div>
                   <div className="flex items-center mt-4">
-                    <div className="w-2 h-2 mr-3 rounded-full bg-pending"></div>
+                    <div className="w-2 h-2 mr-3 rounded-full bg-warning"></div>
                     <span className="truncate">Warning (4-7 days)</span> 
                     <span className="ml-auto font-medium">{warningPercent}%</span>
                   </div>
                   <div className="flex items-center mt-4">
-                    <div className="w-2 h-2 mr-3 rounded-full bg-warning"></div>
+                    <div className="w-2 h-2 mr-3 rounded-full bg-primary"></div>
                     <span className="truncate">Normal (7 days)</span> 
                     <span className="ml-auto font-medium">{normalPercent}%</span>
                   </div>
                 </div>
-
-                </div>
+              </div>
           </div>
           {/* END: Assignment Ending */}
 
@@ -368,23 +369,27 @@ function Main() {
               <h2 className="mr-5 text-lg font-medium truncate">
                 Historical Assignment Report
               </h2>
-              <a href="" className="ml-auto truncate text-primary">
-                Show More
-              </a>
             </div>
             <div className="p-5 mt-5 intro-y box">
               <div className="mt-3">
                 <ReportDonutChart height={213} />
               </div>
               <div className="mx-auto mt-8 w-52 sm:w-auto">
-                    <div className="flex items-center mt-4">
-                      {/* <div className={`w-2 h-2 mr-3 rounded-full ${
-                        index === 0 ? 'bg-primary' : 
-                        index === 1 ? 'bg-pending' : 'bg-warning'
-                      }`}></div> */}
-                      <span className="truncate">test 1</span>
-                      <span className="ml-auto font-medium">percent 1%</span>
-                    </div>
+              <div className="flex items-center">
+                    <div className="w-2 h-2 mr-3 rounded-full bg-success"></div>
+                    <span className="truncate">Completed Assignment</span> 
+                    <span className="ml-auto font-medium">{completedPercent}%</span>
+                  </div>
+                  <div className="flex items-center mt-4">
+                    <div className="w-2 h-2 mr-3 rounded-full bg-pending"></div>
+                    <span className="truncate">Pending Assignments</span> 
+                    <span className="ml-auto font-medium">{pendingPercent}%</span>
+                  </div>
+                  <div className="flex items-center mt-4">
+                    <div className="w-2 h-2 mr-3 rounded-full bg-primary"></div>
+                    <span className="truncate">Approved Assignments</span> 
+                    <span className="ml-auto font-medium">{approvedPercent}%</span>
+                  </div>
               </div>
             </div>
           </div>
